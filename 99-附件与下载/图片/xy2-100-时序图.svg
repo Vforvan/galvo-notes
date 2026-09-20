@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1250 610" width="1250" height="610"
+     font-family="'Microsoft YaHei','PingFang SC','Noto Sans CJK SC','Source Han Sans SC',sans-serif">
+  <defs>
+    <marker id="arrUp" viewBox="0 0 10 10" refX="5" refY="9" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M5,0 L10,10 L0,10 Z" fill="#dc2626"/>
+    </marker>
+    <marker id="arrDown" viewBox="0 0 10 10" refX="5" refY="1" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M5,10 L10,0 L0,0 Z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect width="1250" height="610" fill="#ffffff"/>
+
+  <!-- ═══════════ 标题 ═══════════ -->
+  <text x="150" y="32" font-size="19" font-weight="700" fill="#111827">XY2-100 一帧时序全貌</text>
+  <text x="150" y="56" font-size="12.5" fill="#6b7280">一帧 = 20 bit = 10 μs　·　CLK 2 MHz 连续运行　·　帧率 100 kHz　·　示例：X 目标 = −12345 → 帧 = 0x29F8F</text>
+
+  <!-- ═══════════ 位单元格底色 ═══════════ -->
+  <rect x="150"  y="100" width="150" height="290" fill="#fce7f3"/>   <!-- 控制字 -->
+  <rect x="1100" y="100" width="50"  height="290" fill="#fef3c7"/>   <!-- 校验位 -->
+
+  <!-- ═══════════ 竖向网格 ═══════════ -->
+  <g stroke="#e5e7eb" stroke-width="1">
+    <line x1="150"  y1="100" x2="150"  y2="390"/>
+    <line x1="200"  y1="100" x2="200"  y2="390"/>
+    <line x1="250"  y1="100" x2="250"  y2="390"/>
+    <line x1="300"  y1="100" x2="300"  y2="390"/>
+    <line x1="350"  y1="100" x2="350"  y2="390"/>
+    <line x1="400"  y1="100" x2="400"  y2="390"/>
+    <line x1="450"  y1="100" x2="450"  y2="390"/>
+    <line x1="500"  y1="100" x2="500"  y2="390"/>
+    <line x1="550"  y1="100" x2="550"  y2="390"/>
+    <line x1="600"  y1="100" x2="600"  y2="390"/>
+    <line x1="650"  y1="100" x2="650"  y2="390"/>
+    <line x1="700"  y1="100" x2="700"  y2="390"/>
+    <line x1="750"  y1="100" x2="750"  y2="390"/>
+    <line x1="800"  y1="100" x2="800"  y2="390"/>
+    <line x1="850"  y1="100" x2="850"  y2="390"/>
+    <line x1="900"  y1="100" x2="900"  y2="390"/>
+    <line x1="950"  y1="100" x2="950"  y2="390"/>
+    <line x1="1000" y1="100" x2="1000" y2="390"/>
+    <line x1="1050" y1="100" x2="1050" y2="390"/>
+    <line x1="1100" y1="100" x2="1100" y2="390"/>
+    <line x1="1150" y1="100" x2="1150" y2="390"/>
+  </g>
+
+  <!-- ═══════════ 位序号 1..20 ═══════════ -->
+  <g fill="#9ca3af" font-size="11" text-anchor="middle">
+    <text x="175"  y="92">1</text><text x="225"  y="92">2</text>
+    <text x="275"  y="92">3</text><text x="325"  y="92">4</text>
+    <text x="375"  y="92">5</text><text x="425"  y="92">6</text>
+    <text x="475"  y="92">7</text><text x="525"  y="92">8</text>
+    <text x="575"  y="92">9</text><text x="625"  y="92">10</text>
+    <text x="675"  y="92">11</text><text x="725"  y="92">12</text>
+    <text x="775"  y="92">13</text><text x="825"  y="92">14</text>
+    <text x="875"  y="92">15</text><text x="925"  y="92">16</text>
+    <text x="975"  y="92">17</text><text x="1025" y="92">18</text>
+    <text x="1075" y="92">19</text><text x="1125" y="92">20</text>
+  </g>
+
+  <!-- ═══════════ 行标签 ═══════════ -->
+  <g text-anchor="end">
+    <text x="138" y="172" font-size="14" font-weight="700" fill="#2563eb">CLK</text>
+    <text x="138" y="260" font-size="14" font-weight="700" fill="#ea580c">SYNC</text>
+    <text x="138" y="358" font-size="13" font-weight="700" fill="#16a34a">CHANNEL</text>
+    <text x="138" y="373" font-size="10.5" fill="#16a34a">X / Y</text>
+  </g>
+
+  <!-- ═══════════ CLK：20 个周期，连续不停 ═══════════ -->
+  <path fill="none" stroke="#2563eb" stroke-width="2.2" stroke-linejoin="miter"
+        d="M150,184
+           L150,150 L175,150 L175,184 L200,184
+           L200,150 L225,150 L225,184 L250,184
+           L250,150 L275,150 L275,184 L300,184
+           L300,150 L325,150 L325,184 L350,184
+           L350,150 L375,150 L375,184 L400,184
+           L400,150 L425,150 L425,184 L450,184
+           L450,150 L475,150 L475,184 L500,184
+           L500,150 L525,150 L525,184 L550,184
+           L550,150 L575,150 L575,184 L600,184
+           L600,150 L625,150 L625,184 L650,184
+           L650,150 L675,150 L675,184 L700,184
+           L700,150 L725,150 L725,184 L750,184
+           L750,150 L775,150 L775,184 L800,184
+           L800,150 L825,150 L825,184 L850,184
+           L850,150 L875,150 L875,184 L900,184
+           L900,150 L925,150 L925,184 L950,184
+           L950,150 L975,150 L975,184 L1000,184
+           L1000,150 L1025,150 L1025,184 L1050,184
+           L1050,150 L1075,150 L1075,184 L1100,184
+           L1100,150 L1125,150 L1125,184 L1150,184"/>
+
+  <!-- ═══════════ SYNC：高 19 位，第 20 位拉低 ═══════════ -->
+  <path fill="none" stroke="#ea580c" stroke-width="2.6" stroke-linejoin="miter"
+        d="M150,272 L150,238 L1100,238 L1100,272 L1150,272"/>
+
+  <!-- ═══════════ CHANNEL X / Y ═══════════ -->
+  <path fill="none" stroke="#16a34a" stroke-width="2.2" stroke-linejoin="miter"
+        d="M150,374
+           L250,374 L250,340 L300,340 L300,374 L350,374
+           L350,340 L400,340 L400,374 L500,374
+           L500,340 L800,340 L800,374 L950,374
+           L950,340 L1150,340"/>
+
+  <!-- ═══════════ 位名称 + 位值 ═══════════ -->
+  <g font-size="10.5" fill="#4b5563" text-anchor="middle">
+    <text x="175"  y="306">C2</text><text x="225"  y="306">C1</text>
+    <text x="275"  y="306">C0</text><text x="325"  y="306">D15</text>
+    <text x="375"  y="306">D14</text><text x="425"  y="306">D13</text>
+    <text x="475"  y="306">D12</text><text x="525"  y="306">D11</text>
+    <text x="575"  y="306">D10</text><text x="625"  y="306">D9</text>
+    <text x="675"  y="306">D8</text><text x="725"  y="306">D7</text>
+    <text x="775"  y="306">D6</text><text x="825"  y="306">D5</text>
+    <text x="875"  y="306">D4</text><text x="925"  y="306">D3</text>
+    <text x="975"  y="306">D2</text><text x="1025" y="306">D1</text>
+    <text x="1075" y="306">D0</text><text x="1125" y="306" font-weight="700" fill="#b45309">P</text>
+  </g>
+  <g font-size="11" font-weight="700" text-anchor="middle" fill="#111827">
+    <text x="175"  y="323">0</text><text x="225"  y="323">0</text>
+    <text x="275"  y="323">1</text><text x="325"  y="323">0</text>
+    <text x="375"  y="323">1</text><text x="425"  y="323">0</text>
+    <text x="475"  y="323">0</text><text x="525"  y="323">1</text>
+    <text x="575"  y="323">1</text><text x="625"  y="323">1</text>
+    <text x="675"  y="323">1</text><text x="725"  y="323">1</text>
+    <text x="775"  y="323">1</text><text x="825"  y="323">0</text>
+    <text x="875"  y="323">0</text><text x="925"  y="323">0</text>
+    <text x="975"  y="323">1</text><text x="1025" y="323">1</text>
+    <text x="1075" y="323">1</text><text x="1125" y="323" fill="#b45309">1</text>
+  </g>
+
+  <!-- ═══════════ 关键边沿标记 ═══════════ -->
+  <circle cx="150"  cy="228" r="9.5" fill="#dc2626"/>
+  <text x="150"  y="232" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+  <circle cx="1100" cy="228" r="9.5" fill="#dc2626"/>
+  <text x="1100" y="232" font-size="11" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+
+  <line x1="500" y1="194" x2="500" y2="146" stroke="#dc2626" stroke-width="1.6" marker-end="url(#arrUp)"/>
+  <text x="507" y="212" font-size="10.5" fill="#dc2626">数据在此变化</text>
+  <line x1="725" y1="140" x2="725" y2="190" stroke="#7c3aed" stroke-width="1.6" marker-end="url(#arrDown)"/>
+  <text x="732" y="212" font-size="10.5" fill="#7c3aed">振镜在此采样</text>
+
+  <!-- ═══════════ 帧边界 ═══════════ -->
+  <line x1="1150" y1="100" x2="1150" y2="390" stroke="#9ca3af" stroke-width="1.4" stroke-dasharray="5,4"/>
+  <text x="1160" y="168" font-size="11" fill="#6b7280">下一帧</text>
+  <text x="1160" y="184" font-size="11" fill="#6b7280">无间隙</text>
+
+  <!-- ═══════════ 时间标尺（置于波形下方）═══════════ -->
+  <line x1="150" y1="398" x2="1150" y2="398" stroke="#d1d5db" stroke-width="1"/>
+  <g stroke="#9ca3af" stroke-width="1">
+    <line x1="150"  y1="398" x2="150"  y2="405"/>
+    <line x1="350"  y1="398" x2="350"  y2="405"/>
+    <line x1="550"  y1="398" x2="550"  y2="405"/>
+    <line x1="750"  y1="398" x2="750"  y2="405"/>
+    <line x1="950"  y1="398" x2="950"  y2="405"/>
+    <line x1="1150" y1="398" x2="1150" y2="405"/>
+  </g>
+  <g fill="#9ca3af" font-size="10.5" text-anchor="middle">
+    <text x="150"  y="420">0</text>
+    <text x="350"  y="420">2 μs</text>
+    <text x="550"  y="420">4 μs</text>
+    <text x="750"  y="420">6 μs</text>
+    <text x="950"  y="420">8 μs</text>
+    <text x="1150" y="420">10 μs</text>
+  </g>
+
+  <!-- ═══════════ 说明区 ═══════════ -->
+  <text x="150" y="452" font-size="11.5" fill="#6b7280">帧与帧背靠背连续，CLK 永不停顿 —— 位置不变时也必须持续重复发送同一帧</text>
+
+  <circle cx="163" cy="484" r="9" fill="#dc2626"/>
+  <text x="163" y="488" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+  <text x="180" y="489" font-size="12.5" fill="#374151">SYNC 上升沿 = 帧开始（第 1 位）</text>
+
+  <circle cx="163" cy="514" r="9" fill="#dc2626"/>
+  <text x="163" y="518" font-size="10.5" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+  <text x="180" y="519" font-size="12.5" fill="#374151">SYNC 下降沿 = 校验位开始（第 20 位）　→　SYNC 高电平恰好覆盖 19 bit = 9.5 μs</text>
+
+  <text x="150" y="554" font-size="12.5" fill="#dc2626">▲ CLK 上升沿：数据变化</text>
+  <text x="340" y="554" font-size="12.5" fill="#7c3aed">▼ CLK 下降沿：振镜采样</text>
+
+  <text x="150" y="582" font-size="11.5" fill="#6b7280">建立时间 tDS ≥ 50 ns　·　保持时间 tDH ≥ 100 ns　·　高电平 = 1，低电平 = 0</text>
+
+  <!-- ═══════════ 图例 ═══════════ -->
+  <rect x="620" y="544" width="14" height="11" fill="#fce7f3" stroke="#f9a8d4"/>
+  <text x="640" y="554" font-size="11.5" fill="#4b5563">控制字 001</text>
+  <rect x="740" y="544" width="14" height="11" fill="#fef3c7" stroke="#fcd34d"/>
+  <text x="760" y="554" font-size="11.5" fill="#4b5563">偶校验位</text>
+  <text x="620" y="582" font-size="11.5" fill="#6b7280">中心位置 0 → 0x30000 → <tspan font-weight="700" fill="#374151">001 1000000000000000 0</tspan></text>
+</svg>

@@ -1,0 +1,19 @@
+# 统一换行符：仓库内一律存 LF。
+# 本库含 Windows 上可能被 CRLF 化的 Verilog / Python / Markdown，
+# 不统一的话会出现"整个文件都改了"的假 diff。
+* text=auto eol=lf
+
+# 图片与二进制不转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.svg text
+*.pdf binary
+
+# 第三方代码的源文件按文本处理（便于 diff 阅读）
+*.v text
+*.sv text
+*.py text
+*.md text
+*.json text

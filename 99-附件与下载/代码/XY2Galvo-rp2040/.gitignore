@@ -1,0 +1,41 @@
+#Compiled object files
+*.o
+*.obj
+*.lo
+*.la
+#Precompiled headers
+*.gch
+#Libraries
+*.a
+*.lib
+*.so
+*.dll
+#Executables
+*.exe
+*.out
+*.app
+#Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+#IDE-specific files
+.idea/
+.vscode/
+*.tmproj
+*.creator
+*.creator.usernbproject/
+*.sln
+*.suo
+#Arduino build files
+build/
+*.eep
+*.elf
+*.hex
+*.bin
+*.lss
+*.map
+*.sym
+#Other
+.DS_Store
+Thumbs.db

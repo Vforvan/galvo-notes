@@ -1,0 +1,12 @@
+{
+  "attachmentFolderPath": "99-附件与下载/图片",
+  "alwaysUpdateLinks": true,
+  "newFileLocation": "current",
+  "useMarkdownLinks": false,
+  "showLineNumber": true,
+  "readableLineLength": false,
+  "strictLineBreaks": false,
+  "defaultViewMode": "preview",
+  "livePreview": true,
+  "showInlineTitle": true
+}

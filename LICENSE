@@ -1,0 +1,38 @@
+XY2-100 振镜协议学习库 © 2026 Star LV (Vforvan)
+
+本仓库采用**分许可**：
+
+一、笔记与文档（所有 *.md 文件，含深度调研报告）
+    Creative Commons Attribution 4.0 International (CC BY 4.0)
+    https://creativecommons.org/licenses/by/4.0/
+
+    你可以自由地共享（复制、发行）与演绎（修改、转换、在此基础上创作），
+    包括商业目的，但必须给出适当的署名并注明是否作了修改。
+
+二、自写代码（02-硬件实现篇/代码/ 下的 .v 与 .py 文件）
+    MIT License
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in all
+    copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+    SOFTWARE.
+
+三、第三方内容
+    99-附件与下载/代码/XY2Galvo-rp2040/ 为第三方源码，采用 BSD-3-Clause，
+    版权归其作者所有，其 LICENSE 随目录保留，不受本文件第一、二条约束。
+
+    XY2-100 / XY3-100 / SL2-100 等协议标准与各厂商手册的版权归
+    LasIA 及各厂商所有；本仓库不分发这些文档，来源见 THIRD-PARTY.md。
