@@ -17,7 +17,7 @@ optics_calc.py -- 振镜光学系统计算器（教学 + 选型工具）
   python optics_calc.py expand 3 12                      # 输入光斑mm 需要的扩束倍率
   python optics_calc.py collimate 50 0.12 100            # 纤芯um 光纤NA 准直镜焦距mm
   python optics_calc.py power 1000 50                    # 功率W 光斑直径um
-  python optics_calc.py curvature 160 200                # 场镜焦距mm 幅面mm
+  python optics_calc.py curvature 160 200                # 球面焦面矢高（⚠️ 非场镜残差）
   python optics_calc.py speed 160 20 2.0                 # 场镜焦距mm 光学角deg 转速rad/s
   python optics_calc.py delay 160 2000 25                # 场镜焦距mm 扫描速度mm/s 滞后时间us
   python optics_calc.py table 1064                       # 打印常用场镜参数表
@@ -95,12 +95,27 @@ def field_size(f_mm, half_angle_deg):
 
 def curvature(f_mm, field_mm):
     """
-    平场聚焦镜残余场曲的粗略量级（💡 经验估计，非厂商指标）:
-    轴上焦点与边缘焦点沿光轴的距离量级 ~ (r²)/(2·f)·k
-    这里给 k=1 的量级参考值，实际以场镜 datasheet 的 flatness 为准。
+    未校正【球面】焦面的矢高（⚠️ 不是 F-θ 场镜的残余场曲！）:
+
+        Δz = √(f² + r²) − f  ≈  r²/(2f)      （精确式与近似式都返回）
+
+    ⚠️ 重要边界（本工具最容易误用的地方）:
+      这个式子的含义是「假如完全没有做平场校正，焦面会弯多少」，
+      典型用途是分析**预聚焦（pre-scan）架构**为什么需要动态调焦。
+
+      **它不能用来评估 F-θ 场镜的残余场曲。**
+      F-θ 场镜是专门为平场设计的多片系统，真实残差比这个值小约 143 倍
+      （f=160、y=100：矢高 28.68 mm vs 真实残差约 0.2 mm）。
+      真实残差要从场镜的 "Field Curvature vs Deflection Angle" 曲线读。
+
+    因此本函数返回 dict，两个值都给，并在调用处明确标注口径。
     """
     r = field_mm / 2.0
-    return r * r / (2.0 * f_mm)
+    return {
+        "sag_exact": math.sqrt(f_mm ** 2 + r ** 2) - f_mm,
+        "sag_approx": r * r / (2.0 * f_mm),
+        "r": r,
+    }
 
 
 def pick_lens(wavelength_nm, field_mm, target_spot_um, d_in_mm, m2=1.0,
@@ -262,10 +277,27 @@ def cmd_curvature(a):
     f, field = float(a[0]), float(a[1])
     c = curvature(f, field)
     print(f"场镜 f={f:g} mm, 幅面 {field:g} mm")
-    print(f"  半幅面 r = {field/2:g} mm")
-    print(f"  💡 场曲量级估计 ≈ r²/(2f) = {c:.3f} mm")
-    print(f"  这意味着：不加 Z 轴补偿，幅面边缘焦点会偏离工件面约 {c:.2f} mm")
-    print(f"  焦深若只有 ±{depth_of_focus(1064, f, 10)/2*1000:.0f} μm，边缘就已经离焦了")
+    print(f"  半幅面 r = {c['r']:g} mm")
+    print()
+    print("  【未校正球面焦面】—— 不是 F-θ 场镜的真实残差！")
+    print(f"    精确矢高 √(f²+r²)−f = {c['sag_exact']:.2f} mm")
+    print(f"    近似式    r²/(2f)    = {c['sag_approx']:.2f} mm"
+          f"   （偏高 {(c['sag_approx']/c['sag_exact']-1)*100:.0f}%）")
+    print()
+    print("  【F-θ 场镜真实残余场曲】")
+    print(f"    ≈ 0.2 mm 量级（f=160~254 档，读厂商 Field Curvature 曲线）")
+    print(f"    → 比上面的球面矢高小约 {c['sag_exact']/0.2:.0f} 倍")
+    print()
+    dof = depth_of_focus(1064, f, 10)
+    print(f"  判据：残余场曲 0.2 mm  vs  焦深 DOF（D=10 mm 时 = {dof:.3f} mm）")
+    verdict = "落在焦深内 → 不需要 Z 轴" if 0.2 < dof else "超出焦深 → 需要 Z 轴补偿"
+    print(f"    → 0.2 mm {'<' if 0.2 < dof else '>'} {dof:.3f} mm：{verdict}")
+    print()
+    print("  ⚠️ 但光斑越小焦深越短：50 µm 光斑 DOF≈±1.85 mm（不需要），")
+    print("     12 µm 光斑 DOF≈±0.11 mm（0.2 mm 残差是它的 1.8 倍，必须补偿）")
+    print("  ⚠️ 还有一条否决项：先算 θ = r/f，别超场镜额定角")
+    print(f"     本例 f={f:g}、r={c['r']:g} → θ = {math.degrees(c['r']/f):.1f}°"
+          f"（FTH160-1064 额定仅 ±28°）")
 
 
 def cmd_speed(a):
@@ -389,9 +421,13 @@ def selftest():
     z2 = depth_of_focus(1064, 320, 10)
     check("f 翻倍焦深 4 倍", z2 / z1, 4.0, 1e-9)
 
-    # 13. 场曲量级：f=160, 幅面 200 → r=100 → 100²/(2·160)=31.25 mm
-    print("\n13) 场曲量级估计")
-    check("曲率估计", curvature(160, 200), 31.25, 1e-9, " mm")
+    # 13. 未校正球面焦面矢高：f=160, r=100 → √35600 − 160 = 28.68；近似 31.25
+    print("\n13) 未校正球面焦面矢高（注意：不是 F-θ 场镜残差）")
+    c = curvature(160, 200)
+    check("精确矢高 √(f²+r²)−f", c["sag_exact"], 28.68, 0.01, " mm")
+    check("近似值 r²/(2f)", c["sag_approx"], 31.25, 0.01, " mm")
+    print(f"         近似值偏高 {(c['sag_approx']/c['sag_exact']-1)*100:.0f}%，"
+          f"引用时用精确值 {c['sag_exact']:.2f} mm")
 
     # 14. 反推场镜：要 50 μm @ D=10mm, λ=1064 → f = 0.05·10/(1.83·1.064e-3)
     print("\n14) 反推场镜焦距（目标 50 μm, D=10 mm, λ=1064 nm）")
@@ -417,7 +453,7 @@ COMMANDS = {
     "expand":   ("算需要的扩束倍率", cmd_expand),
     "collimate":("算光纤准直后的光束参数", cmd_collimate),
     "power":    ("算功率密度", cmd_power),
-    "curvature":("估算场曲与离焦量", cmd_curvature),
+    "curvature":("未校正球面焦面矢高（非场镜残差）", cmd_curvature),
     "speed":    ("算扫描线速度", cmd_speed),
     "delay":    ("算伺服滞后距离", cmd_delay),
     "table":    ("打印常用场镜参数表", cmd_table),
