@@ -1,0 +1,173 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 640" width="1160" height="640" font-family="'Segoe UI','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#d32f2f"/>
+    </marker>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff5252" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#ff8a65" stop-opacity="0.7"/>
+    </linearGradient>
+    <style>
+      .box    { fill:#fff4e1; stroke:#e0a800; stroke-width:1.5; rx:6; }
+      .boxelec{ fill:#e1f0ff; stroke:#1976d2; stroke-width:1.5; rx:6; }
+      .boxsrc { fill:#ffe4e1; stroke:#d32f2f; stroke-width:1.5; rx:6; }
+      .boxout { fill:#e8f5e9; stroke:#388e3c; stroke-width:1.5; rx:6; }
+      .t      { font-size:12.5px; fill:#212121; text-anchor:middle; }
+      .tb     { font-size:13.5px; font-weight:600; fill:#212121; text-anchor:middle; }
+      .ts     { font-size:10.5px; fill:#616161; text-anchor:middle; }
+      .tn     { font-size:10.5px; font-weight:600; text-anchor:middle; }
+      .axis   { font-size:12px; font-weight:700; fill:#fff; text-anchor:middle; }
+      .cap    { font-size:11.5px; fill:#424242; }
+      .hdr    { font-size:13px; font-weight:700; fill:#212121; }
+    </style>
+  </defs>
+
+  <!-- 标题 -->
+  <text x="580" y="30" style="font-size:19px;font-weight:700;fill:#212121;text-anchor:middle">5 轴振镜光学系统 · 完整光路与镜片清单</text>
+  <text x="580" y="50" style="font-size:11.5px;fill:#616161;text-anchor:middle">5 个电机 = 变焦扩束 2 轴 + X/Y 振镜 2 轴 + Z 动态聚焦 1 轴　｜　激光自左向右传播</text>
+
+  <!-- 主光轴 -->
+  <line x1="26" y1="300" x2="1136" y2="300" stroke="url(#beam)" stroke-width="8" marker-end="url(#arrow)"/>
+
+  <!-- ① 激光器 -->
+  <rect x="20" y="252" width="90" height="96" class="boxsrc"/>
+  <text x="65" y="280" class="tb">① 激光器</text>
+  <text x="65" y="299" class="ts">光纤输出</text>
+  <text x="65" y="315" class="ts">QBH / QD</text>
+  <text x="65" y="372" class="tn" fill="#d32f2f">激光源</text>
+
+  <!-- ② 准直镜 -->
+  <rect x="124" y="252" width="90" height="96" class="box"/>
+  <text x="169" y="280" class="tb">② 准直镜</text>
+  <text x="169" y="299" class="ts">Collimator</text>
+  <ellipse cx="169" cy="300" rx="6" ry="24" fill="none" stroke="#e0a800" stroke-width="2"/>
+  <text x="169" y="334" class="ts">f ≈ 80–150 mm</text>
+  <text x="169" y="374" class="tn" fill="#c68a00">镜片 1</text>
+
+  <!-- ③ 变焦扩束镜组 -->
+  <rect x="228" y="228" width="130" height="144" class="box" stroke-dasharray="6,3"/>
+  <text x="293" y="248" class="tb">③ 变焦扩束镜组</text>
+  <text x="293" y="264" class="ts">Zoom Beam Expander</text>
+  <ellipse cx="258" cy="300" rx="6" ry="26" fill="none" stroke="#e0a800" stroke-width="2"/>
+  <ellipse cx="293" cy="300" rx="7" ry="30" fill="none" stroke="#e0a800" stroke-width="2"/>
+  <ellipse cx="328" cy="300" rx="6" ry="26" fill="none" stroke="#e0a800" stroke-width="2"/>
+  <text x="293" y="348" class="tn" fill="#c68a00">镜片 2 · 3 · 4</text>
+  <text x="293" y="363" class="ts">其中 2 片可沿光轴移动</text>
+
+  <!-- M1 / M2 -->
+  <circle cx="258" cy="196" r="14" class="boxelec"/>
+  <text x="258" y="201" class="axis" fill="#1565c0">M1</text>
+  <line x1="258" y1="210" x2="258" y2="274" stroke="#1976d2" stroke-width="1.3" stroke-dasharray="3,3"/>
+  <circle cx="328" cy="196" r="14" class="boxelec"/>
+  <text x="328" y="201" class="axis" fill="#1565c0">M2</text>
+  <line x1="328" y1="210" x2="328" y2="274" stroke="#1976d2" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+  <!-- ④ 折转镜 -->
+  <rect x="372" y="252" width="84" height="96" class="box"/>
+  <text x="414" y="280" class="tb">④ 折转镜</text>
+  <text x="414" y="299" class="ts">Folding Mirror</text>
+  <line x1="400" y1="286" x2="428" y2="314" stroke="#e0a800" stroke-width="3"/>
+  <text x="414" y="334" class="ts">可选件</text>
+  <text x="414" y="374" class="tn" fill="#c68a00">镜片 5</text>
+
+  <!-- ⑤ X 振镜 -->
+  <rect x="470" y="244" width="84" height="112" class="boxelec"/>
+  <text x="512" y="272" class="tb">⑤ X 振镜</text>
+  <text x="512" y="291" class="ts">X Mirror</text>
+  <text x="512" y="307" class="ts">快轴</text>
+  <line x1="498" y1="288" x2="526" y2="316" stroke="#1976d2" stroke-width="3.2"/>
+  <text x="512" y="380" class="tn" fill="#1565c0">镜片 6</text>
+  <circle cx="512" cy="206" r="14" class="boxelec"/>
+  <text x="512" y="211" class="axis" fill="#1565c0">M3</text>
+  <line x1="512" y1="220" x2="512" y2="288" stroke="#1976d2" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+  <!-- ⑥ Y 振镜 -->
+  <rect x="568" y="240" width="84" height="120" class="boxelec"/>
+  <text x="610" y="268" class="tb">⑥ Y 振镜</text>
+  <text x="610" y="287" class="ts">Y Mirror</text>
+  <line x1="596" y1="286" x2="624" y2="314" stroke="#1976d2" stroke-width="3.2"/>
+  <text x="610" y="334" class="ts">镜片更大</text>
+  <text x="610" y="348" class="ts">承接 X 的位移</text>
+  <text x="610" y="380" class="tn" fill="#1565c0">镜片 7</text>
+  <circle cx="610" cy="206" r="14" class="boxelec"/>
+  <text x="610" y="211" class="axis" fill="#1565c0">M4</text>
+  <line x1="610" y1="220" x2="610" y2="284" stroke="#1976d2" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+  <!-- ⑦ 动态聚焦镜组 -->
+  <rect x="666" y="228" width="112" height="144" class="box" stroke-dasharray="6,3"/>
+  <text x="722" y="248" class="tb">⑦ 动态聚焦镜组</text>
+  <text x="722" y="264" class="ts">Z-Shifter</text>
+  <ellipse cx="697" cy="300" rx="6" ry="26" fill="none" stroke="#e0a800" stroke-width="2"/>
+  <ellipse cx="747" cy="300" rx="6" ry="26" fill="none" stroke="#e0a800" stroke-width="2"/>
+  <text x="722" y="348" class="tn" fill="#c68a00">镜片 8 · 9</text>
+  <text x="722" y="363" class="ts">整体沿光轴平移</text>
+
+  <!-- M5 -->
+  <circle cx="722" cy="196" r="14" class="boxelec"/>
+  <text x="722" y="201" class="axis" fill="#1565c0">M5</text>
+  <line x1="722" y1="210" x2="722" y2="274" stroke="#1976d2" stroke-width="1.3" stroke-dasharray="3,3"/>
+
+  <!-- ⑧ F-θ 场镜 -->
+  <rect x="792" y="228" width="104" height="144" class="box"/>
+  <text x="844" y="248" class="tb">⑧ F-θ 场镜</text>
+  <text x="844" y="264" class="ts">F-Theta Lens</text>
+  <path d="M830,276 Q845,300 830,324" fill="none" stroke="#e0a800" stroke-width="2.4"/>
+  <path d="M846,274 Q861,300 846,326" fill="none" stroke="#e0a800" stroke-width="2.4"/>
+  <text x="844" y="348" class="tn" fill="#c68a00">镜片 10–13</text>
+  <text x="844" y="363" class="ts">多片镜组</text>
+
+  <!-- ⑨ 保护镜（错开下方，避免与工件重叠） -->
+  <rect x="908" y="266" width="82" height="68" class="box"/>
+  <text x="949" y="290" class="tb">⑨ 保护镜</text>
+  <text x="949" y="308" class="ts">最易污染</text>
+  <text x="949" y="324" class="ts">可更换</text>
+  <text x="949" y="358" class="tn" fill="#c68a00">镜片 14</text>
+
+  <!-- ⑩ 工件 -->
+  <rect x="1004" y="252" width="132" height="96" class="boxout"/>
+  <text x="1070" y="282" class="tb">⑩ 工件 / 焦平面</text>
+  <text x="1070" y="302" class="ts">线性关系</text>
+  <text x="1070" y="322" style="font-size:14px;font-weight:600;fill:#2e7d32;text-anchor:middle">r = f × θ</text>
+
+  <!-- 扫描角示意 -->
+  <path d="M884,238 A 46,46 0 0 1 924,264" fill="none" stroke="#388e3c" stroke-width="1.5"/>
+  <text x="934" y="240" class="cap" fill="#388e3c">θ 扫描角</text>
+
+  <!-- ===== 图例（下方整块，充分利用空间） ===== -->
+  <rect x="20" y="412" width="548" height="212" fill="#fafafa" stroke="#bdbdbd" stroke-width="1" rx="6"/>
+  <text x="38" y="437" class="hdr">图例</text>
+
+  <rect x="38" y="452" width="16" height="13" class="boxelec"/>
+  <text x="62" y="463" class="cap">电机（M1–M5，共 5 个 → 「5 轴」的由来）</text>
+
+  <rect x="38" y="477" width="16" height="13" class="box"/>
+  <text x="62" y="488" class="cap">光学镜片（编号 1–14，05-光学篇 逐个讲解）</text>
+
+  <rect x="38" y="502" width="16" height="13" class="boxsrc"/>
+  <text x="62" y="513" class="cap">光源　　</text>
+  <rect x="118" y="502" width="16" height="13" class="boxout"/>
+  <text x="142" y="513" class="cap">工件</text>
+
+  <line x1="200" y1="509" x2="244" y2="509" stroke="#d32f2f" stroke-width="6" marker-end="url(#arrow)"/>
+  <text x="254" y="513" class="cap">激光束</text>
+
+  <text x="38" y="541" class="hdr">5 个电机分别驱动什么</text>
+  <text x="38" y="563" class="cap"><tspan font-weight="700" fill="#1565c0">M1 / M2</tspan>　变焦扩束镜组：调倍率 + 补偿焦点（必须联动）</text>
+  <text x="38" y="583" class="cap"><tspan font-weight="700" fill="#1565c0">M3 / M4</tspan>　X / Y 振镜：把光束偏转到任意角度</text>
+  <text x="38" y="603" class="cap"><tspan font-weight="700" fill="#1565c0">M5</tspan>　　　Z 动态聚焦：改变焦距，补偿场曲、适配 3D 曲面</text>
+
+  <!-- 右侧：关键公式 -->
+  <rect x="588" y="412" width="548" height="212" fill="#f5f9ff" stroke="#90caf9" stroke-width="1" rx="6"/>
+  <text x="606" y="437" class="hdr" fill="#1565c0">三个必须记住的式子</text>
+
+  <text x="606" y="465" style="font-size:13px;font-weight:600;fill:#212121">① 场镜：角度 → 位移</text>
+  <text x="606" y="485" style="font-size:14px;font-weight:600;fill:#2e7d32">r = f × θ　（θ 用弧度，光学角！）</text>
+
+  <text x="606" y="511" style="font-size:13px;font-weight:600;fill:#212121">② 聚焦光斑（厂商标称口径）</text>
+  <text x="606" y="531" style="font-size:14px;font-weight:600;fill:#2e7d32">d = 1.83 × λ × f × M² / D</text>
+  <text x="606" y="548" class="cap" style="fill:#d32f2f">⚠️ 另一式 4λfM²/πD 差 43.7%，两者不可混用</text>
+
+  <text x="606" y="575" style="font-size:13px;font-weight:600;fill:#212121">③ 焦深（决定要不要上 Z 轴）</text>
+  <text x="606" y="595" style="font-size:14px;font-weight:600;fill:#2e7d32">DOF = 8 × λ × M² × (f/D)² / π</text>
+  <text x="606" y="612" class="cap" style="fill:#616161">焦深 ∝ (f/D)²：想光斑细，焦深就短 —— 这是核心取舍</text>
+</svg>

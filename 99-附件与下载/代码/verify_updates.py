@@ -10,9 +10,15 @@ import re
 import sys
 import unicodedata
 
+# Windows 控制台默认 GBK，直接 print emoji 会 UnicodeEncodeError。
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
 VAULT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
 EXCLUDE = ("_调研原始缓存", "深度调研报告", os.path.join("99-附件与下载", "代码"))
 LINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
+# 附件嵌入 ![[xx.svg]]：目标不是笔记而是文件，按文件名匹配，避免误报
+ASSET_EXT = (".svg", ".png", ".jpg", ".jpeg", ".gif", ".webp", ".pdf", ".drawio")
 
 # 关键更正清单: (说明, 文件, 必须包含的字符串)
 MUST_HAVE = [
@@ -20,7 +26,7 @@ MUST_HAVE = [
     ("CLK/SYNC 互换陷阱", "01-协议篇/08-物理层与连接器.md", "CLK/SYNC"),
     ("CLK/SYNC 互换陷阱", "🏠 开始这里.md", "CLK/SYNC"),
     ("CLK/SYNC 互换陷阱", "03-调试与排错篇/03-常见故障速查.md", "CLK/SYNC"),
-    ("CLK/SYNC 互换陷阱", "05-速查卡/02-引脚接线速查.md", "CLK/SYNC"),
+    ("CLK/SYNC 互换陷阱", "07-速查卡/02-引脚接线速查.md", "CLK/SYNC"),
     ("CLK/SYNC 互换陷阱", "02-硬件实现篇/04-差分驱动电路.md", "CLK/SYNC"),
     ("终端电阻规定差异", "02-硬件实现篇/04-差分驱动电路.md", "必须加"),
     ("模拟标度因子更正", "01-协议篇/07-协议家族横向对比.md", "标度因子"),
@@ -33,7 +39,7 @@ MUST_HAVE = [
 
 
 def collect(vault):
-    out = []
+    out, assets = [], set()
     for dp, dn, fn in os.walk(vault):
         if any(e in dp for e in EXCLUDE):
             continue
@@ -41,12 +47,15 @@ def collect(vault):
         for f in fn:
             if f.endswith(".md"):
                 out.append(os.path.join(dp, f))
-    return out
+            elif f.lower().endswith(ASSET_EXT):
+                assets.add(f)
+                assets.add(os.path.splitext(f)[0])
+    return out, assets
 
 
 def main():
     os.chdir(VAULT)
-    notes = collect(VAULT)
+    notes, assets = collect(VAULT)
     rc = 0
 
     # ---- 1) wikilink 完整性 ----
@@ -64,6 +73,8 @@ def main():
                 if not t:
                     continue
                 total += 1
+                if t.lower().endswith(ASSET_EXT) and os.path.basename(t) in assets:
+                    continue
                 if t not in paths and t not in bases:
                     bad.append(f"{os.path.basename(n)} -> [[{t}]]")
 
