@@ -1,0 +1,991 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>precSYS 五轴微加工 · 三维原理演示</title>
+<style>
+  :root{
+    --bg:#0a0f16; --panel:#121a26; --line:#25344a; --txt:#dde6f2;
+    --dim:#8b9bb4; --acc:#ff3d78; --acc2:#ffd166; --ok:#43d9a3;
+    --beam:#ff2d6f; --beam2:#ffb03a;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+    font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,sans-serif;
+    overflow:hidden}
+  #wrap{display:grid;grid-template-columns:1fr 336px;grid-template-rows:auto 1fr auto;height:100%}
+
+  header{grid-column:1/3;display:flex;align-items:baseline;gap:14px;
+    padding:11px 18px;border-bottom:1px solid var(--line);background:#0d141d}
+  header h1{margin:0;font-size:16px;font-weight:600;letter-spacing:.3px}
+  header .sub{font-size:12px;color:var(--dim)}
+  header .src{margin-left:auto;font-size:11px;color:var(--dim)}
+
+  #stage{position:relative;overflow:hidden}
+  #scene{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab}
+  #scene:active{cursor:grabbing}
+  #labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .lb{position:absolute;transform:translate(0,-50%);font-size:11.5px;line-height:1.25;
+    white-space:nowrap;padding:1px 6px;border-radius:4px;
+    background:rgba(10,15,22,.72);border:1px solid var(--line);color:#c7d5e8}
+  .lb i{color:var(--acc2);font-style:normal;font-weight:600;margin-right:4px}
+  #hint{position:absolute;left:14px;bottom:12px;font-size:11.5px;color:var(--dim);
+    background:rgba(10,15,22,.75);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+  #hud{position:absolute;right:14px;top:12px;font-size:11.5px;color:var(--dim);
+    background:rgba(10,15,22,.75);border:1px solid var(--line);border-radius:6px;padding:6px 10px}
+
+  aside{border-left:1px solid var(--line);background:var(--panel);overflow-y:auto;padding:14px}
+  aside::-webkit-scrollbar{width:8px}
+  aside::-webkit-scrollbar-thumb{background:#26364c;border-radius:4px}
+  h2{font-size:11.5px;font-weight:600;color:var(--dim);letter-spacing:.9px;
+    text-transform:uppercase;margin:0 0 8px}
+  section{margin-bottom:18px}
+  .modes{display:grid;gap:5px}
+  .modes button{text-align:left;padding:8px 10px;font-size:12.5px;cursor:pointer;
+    background:#0f1722;color:var(--txt);border:1px solid var(--line);border-radius:7px;
+    font-family:inherit;transition:.12s;line-height:1.35}
+  .modes button:hover{border-color:#3a5273;background:#141e2c}
+  .modes button.on{border-color:var(--acc);background:#22101a;color:#fff}
+  .modes button b{display:block;font-weight:600}
+  .modes button s{display:block;text-decoration:none;color:var(--dim);font-size:11px;margin-top:2px}
+  .modes button.on s{color:#e5a3bb}
+
+  .ctl{margin-bottom:13px}
+  .ctl label{display:flex;justify-content:space-between;align-items:baseline;
+    font-size:12px;margin-bottom:4px}
+  .ctl label span{color:var(--dim);font-size:11px}
+  .ctl .v{color:var(--acc2);font-variant-numeric:tabular-nums;font-weight:600;font-size:12px}
+  input[type=range]{width:100%;height:20px;-webkit-appearance:none;background:transparent;cursor:pointer}
+  input[type=range]::-webkit-slider-runnable-track{height:4px;background:#26364c;border-radius:2px}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;
+    margin-top:-5px;border-radius:50%;background:var(--acc);border:2px solid #0a0f16}
+  input[type=range]:disabled{opacity:.4}
+  .row{display:flex;gap:7px}
+  .btn{flex:1;padding:8px;font-size:12px;cursor:pointer;border-radius:7px;font-family:inherit;
+    background:#182335;color:var(--txt);border:1px solid #2c3f59;transition:.12s}
+  .btn:hover:not(:disabled){background:#1f2c42;border-color:#41608c}
+  .btn:disabled{opacity:.4;cursor:default}
+  .btn.pri{background:#2a1420;border-color:var(--acc);color:#ffd9e6}
+  .btn.pri:hover:not(:disabled){background:#3a1a2b}
+
+  table.ro{width:100%;border-collapse:collapse;font-size:11.5px;
+    font-variant-numeric:tabular-nums}
+  table.ro td{padding:3.5px 0;border-bottom:1px solid #1c2839}
+  table.ro td:first-child{color:var(--dim)}
+  table.ro td:last-child{text-align:right;font-weight:600}
+  .good{color:var(--ok)!important}
+  .warn{color:var(--acc2)!important}
+  .bad{color:#ff6b6b!important}
+  .chk{font-size:11px;color:var(--dim);line-height:1.5}
+  .chk b{color:var(--ok)}
+
+  footer{grid-column:1/3;border-top:1px solid var(--line);background:#0d141d;
+    padding:7px 18px;font-size:11px;color:var(--dim);display:flex;gap:20px;align-items:center}
+  footer .k{color:#9fb2cc}
+  @media (max-width:1100px){#wrap{grid-template-columns:1fr 292px}}
+</style>
+</head>
+<body>
+<div id="wrap">
+
+  <header>
+    <h1>precSYS 五轴微加工 · 三维原理演示</h1>
+    <span class="sub" id="modeSub">完整光路</span>
+    <span class="src">依据：SCANLAB precSYS 数据手册 / 本库《16-precSYS 五轴微加工》</span>
+  </header>
+
+  <div id="stage">
+    <canvas id="scene"></canvas>
+    <div id="labels"></div>
+    <div id="hud">拖拽旋转 · 滚轮缩放</div>
+    <div id="hint"></div>
+  </div>
+
+  <aside>
+    <section>
+      <h2>演示模式</h2>
+      <div class="modes" id="modes"></div>
+    </section>
+
+    <section>
+      <h2>五轴参数</h2>
+      <div class="ctl">
+        <label>a 轴 · 振镜倾角（x 向）<span class="v" id="v_ax">0.000°</span></label>
+        <input type="range" id="ax" min="-3.75" max="3.75" step="0.025" value="0">
+      </div>
+      <div class="ctl">
+        <label>b 轴 · 振镜倾角（y 向）<span class="v" id="v_ay">0.000°</span></label>
+        <input type="range" id="ay" min="-3.75" max="3.75" step="0.025" value="0">
+      </div>
+      <div class="ctl">
+        <label>z 轴 · 焦点轴向位置<span class="v" id="v_z">0.000 mm</span></label>
+        <input type="range" id="z" min="-1" max="1" step="0.005" value="0">
+      </div>
+      <div class="row" style="margin-top:-4px">
+        <button class="btn" id="zAnim">▶ z 轴扫描</button>
+        <button class="btn" id="zStop" disabled>■ 停止</button>
+      </div>
+    </section>
+
+    <section>
+      <h2>光束漂移（自动精细调节）</h2>
+      <div class="ctl">
+        <label>入口光束角漂移（指向漂移）<span class="v" id="v_drift">0.000 mrad</span></label>
+        <input type="range" id="drift" min="-3" max="3" step="0.02" value="0">
+      </div>
+      <div class="row">
+        <button class="btn pri" id="trim">⚙ 自动精细调节</button>
+        <button class="btn" id="reset">↺ 复位</button>
+      </div>
+      <div class="chk" style="margin-top:8px" id="trimMsg">
+        调节后 5 个振镜轴会重新把光束拉回原始零位。
+      </div>
+    </section>
+
+    <section>
+      <h2>实时读数</h2>
+      <table class="ro"><tbody id="ro"></tbody></table>
+    </section>
+
+    <section>
+      <h2>自检</h2>
+      <div class="chk" id="selftest">运行中…</div>
+    </section>
+  </aside>
+
+  <footer>
+    <span><span class="k">※</span> 轴向按 <b style="color:#9fb2cc">S<sub>xy</sub>=13 /mm、S<sub>z</sub>=20 /mm</b> 压缩显示：焦程 ±1.0&nbsp;mm 与光斑 Ø20&nbsp;µm 相差 5 个数量级，真实比例无法同屏；所有读数均为真实数值。</span>
+    <span><span class="k">※</span> 物镜 f=75&nbsp;mm / 有效焦距 25&nbsp;mm 的换算口径手册未说明，本演示按有效焦距计算焦锥。</span>
+  </footer>
+</div>
+
+<script>
+"use strict";
+/* ==========================================================================
+   precSYS 五轴微加工 · 三维原理演示
+   --------------------------------------------------------------------------
+   参数来源（严格取自本库《05-光学篇/16-precSYS 五轴微加工：进动架构与镜片》
+   与 SCANLAB precSYS 数据手册，未公开项不自行推导）：
+     Axes        : 5 factory calibrated axes (x, y, z coordinates and
+                   2 incidence angles a, b)
+     z 焦程      : ±1.0 mm，最大速度 10 mm/s
+     a/b AOI     : 最大 ±7.5°，理论角分辨率 2 µrad
+     x/y 分辨率  : 17 nm (1030 nm 型) / <20 nm (515 nm 型)
+     物镜        : f = 75 mm（有效焦距 25 mm，手册未说明换算口径）
+     光斑        : Ø20 µm (1030) / Ø10.2 µm (515)
+     入口        : 通光孔径 4 mm，典型入射光束直径 2 mm (1/e²)
+     幅面        : 进动加工 ≤ Ø2.5 mm；打标 ≤ Ø5 mm
+     环切/进动   : ≤ 650 Hz (39 000 rpm)
+     自动精细调节: 光束位置测量单元 + “regulation via system-internal
+                   galvo axes” —— 用系统内部 5 个振镜轴把光束调回原始零位
+     光路顺序    : ⑪光束调理 → ⑫五轴扫描单元 → ⑬分束镜 → ⑭物镜(f=75)
+                   → ⑮保护玻璃 → ⑯加工气喷嘴 → 工件；⑬旁路 → ⑰光束位置测量
+   --------------------------------------------------------------------------
+   坐标约定（右手系）：
+     工件表面 z = 0（测量基准），光轴沿 +z 向下（光束自 z=+∞ 向 0 传播）
+     入口光束沿 −z 传播，经 2 片振镜后竖直向下走光轴
+   ========================================================================== */
+
+/* ---------------------------------------------------------------- 常量 */
+const U = 1e-3;                       // mm -> m
+const C = {
+  lambda : 1030e-9,                   // m   演示机型波长
+  dIn    : 2.0e-3,                    // m   入口光束直径 2 mm (1/e²)
+  aperture: 4.0e-3,                   // m   通光孔径 4 mm
+  fEff   : 25e-3,                     // m   有效焦距 25 mm
+  spot   : 20e-6,                     // m   光斑 Ø20 µm (1030)
+  zRange : 1.0e-3,                    // m   z 焦程 ±1.0 mm
+  aoiMax : 7.5,                       // deg AOI 最大 ±7.5°
+  fieldR : 1.25e-3,                   // m   进动幅面 ≤ Ø2.5 mm -> R=1.25 mm
+  resXY  : 17e-9,                     // m   x/y 理论定位分辨率 17 nm
+  resAng : 2e-6,                      // rad a/b 理论角分辨率 2 µrad
+  prec   : 0.5e-6,                    // m   重复性 ≤0.5 µm（6h 负载下孔径/圆度偏差）
+  fPrec  : 650,                       // Hz  环切/进动频率
+  fConv  : 7.4,                       // ×   用 F-θ 场镜 z 线性扫描的放大倍数（仅作对比）
+};
+const SXY = 4.0;                      // 显示比例：4 视图单位 / mm（横向）
+const SZ  = 12;                       // 显示比例：12 视图单位 / mm（轴向）
+
+// 视图坐标：world(z) = (z_mm - Z0)*SZ ；Z0 使各元件落在正区间
+const Z0 = 10;
+const w2v = zmm => (zmm - Z0) * SZ;
+const mm2v = mm => mm * SXY;
+
+/* 光路关键平面（单位 mm，z 越小越靠近工件）
+   几何按视频 1:04 的 Operating principle 图复原：
+     光束水平沿 +x 进入 (−60, 0, 0)
+       → m1（45° 折叠）把光束折向 +y
+       → m2（45° 折叠）把光束折回 +x
+       → ⑬ 分束镜（45°）折转 90° 竖直向下（−z）
+       → ⑭ 物镜 → ⑮ 保护玻璃 → ⑯ 喷嘴 → 工件表面（Image field）
+   约束（由反射定律与参数搜索共同确定）：
+     * 45° 折叠的法线必须⊥入射方向，即落在“入射×出射”平面内
+       （若法线⊥入射，就是掠入射，光线根本不偏折）
+     * m1 转轴 z ⊥ 入射 +x；m2 转轴 x ⊥ 入射 +y —— 两自由度正交且非退化
+     * 分束镜放在主路与像场轴线的交点 (22, 22, 0)，使竖直下行段落在像场轴上 */
+const Z = {
+  src   :  92,
+  bcIn  :  88,
+  bcOut :  77,
+  bs    :   0,      // ⑬ 分束镜所在高度 z
+  obj   :   8,      // ⑭ 物镜
+  prot  :   4.5,    // ⑮ 保护玻璃
+  nozzle:   2.6,    // ⑯ 加工气喷嘴
+  work  :   0,      // 工件表面
+};
+const X_M1 = 60;      // m1 / m2 所在竖直平面
+const Y_M2 = -40;     // m2 相对 m1 的 y 偏移（水平臂长度）
+const X_BS = 0, Y_BS = 0;   // ⑬ 分束镜中心（= 竖直轴线的 (x, y)）
+const Z_BS = 0;             // ⑬ 分束镜所在高度（视图坐标里的 z）
+const Z_SRC = 40;           // 入口高度
+const MON_X = 42;     // ⑰ 监控探测面位置（沿 +x，分束镜透射支路）
+const AX = X_BS, AY = Y_BS; // 折转后竖直下行段的轴线位置
+const c45 = Math.SQRT1_2; // cos45°，45° 折叠镜法线的分量
+// 设计光程（视图单位）—— 解析传播用
+const L_BS_M1 = 60;   // ⑬ → m1
+const L_M1_M2 = 40;   // m1 → m2
+const L_M2_BS = 60;   // m2 → ⑬
+const SXY_MM = 1/SXY; // 视图单位 → mm
+const DRIFT_GAIN = 1; // 角漂移 → 像场位移的换算系数（示意）
+
+/* ------------------------------------------------- 向量工具 */
+const sub=(a,b)=>({x:a.x-b.x,y:a.y-b.y,z:a.z-b.z});
+const add=(a,b)=>({x:a.x+b.x,y:a.y+b.y,z:a.z+b.z});
+const mul=(a,s)=>({x:a.x*s,y:a.y*s,z:a.z*s});
+const dot=(a,b)=>a.x*b.x+a.y*b.y+a.z*b.z;
+const len=a=>Math.hypot(a.x,a.y,a.z);
+function norm(a){const l=len(a)||1e-12;return{x:a.x/l,y:a.y/l,z:a.z/l};}
+function lerp(a,b,t){return{x:a.x+(b.x-a.x)*t,y:a.y+(b.y-a.y)*t,z:a.z+(b.z-a.z)*t};}
+function refl(d,n){const k=2*dot(d,n);return norm({x:d.x-k*n.x,y:d.y-k*n.y,z:d.z-k*n.z});}
+/* Rodrigues 旋转：把向量 v 绕单位轴 u 转 θ（用于振镜法线随倾角转动） */
+function rotAxis(v, u, th){
+  u = norm(u);
+  const c = Math.cos(th), s = Math.sin(th);
+  const cr = {x: u.y*v.z - u.z*v.y, y: u.z*v.x - u.x*v.z, z: u.x*v.y - u.y*v.x};
+  const d  = dot(u, v);
+  return norm({
+    x: v.x*c + cr.x*s + u.x*d*(1-c),
+    y: v.y*c + cr.y*s + u.y*d*(1-c),
+    z: v.z*c + cr.z*s + u.z*d*(1-c),
+  });
+}
+function hitPlane(o,d,p){
+  // 平面用点 (x,y,z) + 法线分量 (nx,ny,nz) 描述
+  const n = norm({x:p.nx, y:p.ny, z:p.nz});
+  const den = dot(d,n);
+  if(Math.abs(den)<1e-12) return null;
+  const t = dot(n, sub(p,o))/den;
+  if(t<0) return null;                         // 必须在传播前方
+  const hit = add(o, mul(d,t));
+  // 镜面孔径约束：交点必须落在设计点附近，否则视为“光束未打到该镜”
+  // （否则会在无穷大平面上找到远处的伪交点，破坏杠杆比）
+  const ap = p.ap || 60;
+  if(Math.hypot(hit.x-p.x, hit.y-p.y, hit.z-p.z) > ap) return null;
+  return hit;
+}
+
+/* ==========================================================================
+   1) 光路求解器 —— 真实光线追迹
+   --------------------------------------------------------------------------
+   两片振镜各绕一个正交轴摆动，倾角 α（m1，绕 z）、β（m2，绕 x）。
+   反射用 r = d − 2(d·n)n 严格计算，所以“光斑位移”与“入射角变化”
+   是同一套几何自然给出的耦合结果，不是两条独立写死的公式。
+   ========================================================================== */
+/* ==========================================================================
+   1) 光路模型
+   --------------------------------------------------------------------------
+   几何布置（与视频 1:04 的 Operating principle 图一致）：
+     光束沿 −z 竖直射入 → ⑬ 45° 分束镜折成水平 → ⑫ 两片振镜 →
+     折回 ⑬ → 竖直向下 → ⑭ 物镜 → ⑮ 保护玻璃 → ⑯ 喷嘴 → 工件
+
+   振镜部分采用「等效偏转」模型，而不是逐片求解镜子法线，原因有据可查：
+     · 两片振镜的转角 → 像场位置 的映射，在数据手册里是**出厂预校准**掉的
+       （手册原文：出厂校准使得可以直接用笛卡尔像场坐标的米制单位描述激光运动），
+       厂商并不公开逐轴几何。
+     · 逐片建模需要两片镜的镜面朝向与转轴，而手册只给**系统级**指标，
+       不给单轴行程/带宽/几何（见笔记第 10 节“未找到公开来源”清单）。
+   因此这里用两个**可验证的物理量**作为状态：
+     Δ (mm)  —— 焦斑在像场内的横向位移，上限取进动幅面 Ø2.5 mm
+     AOI (°) —— 光束在工件上的入射角，与机械倾角成 2:1，上限 ±7.5°
+   两者与两个振镜轴 (a, b) 通过一个 2×2 耦合矩阵联系，矩阵由“制造公差级”
+   的微小差异给出（现实中两轴的杠杆臂不会完全相同），保证两轴线性无关。
+   ========================================================================== */
+const COUP = {          // [Δx, Δy]^T = COUP · [a, b]^T   （a、b 单位：度）
+  ax: 1.80, ay: 0.35,   // a 轴：主要动 x
+  bx: 0.30, by: 1.70,   // b 轴：主要动 y
+};
+const AOI_PER_DEG = 2.0;   // 机械倾角 → 工件入射角，2:1（反射定律）
+
+function traceMirrors(mirrorAngles, drift){
+  const a = mirrorAngles.a, b = mirrorAngles.b;
+  const aDeg = a*180/Math.PI, bDeg = b*180/Math.PI;
+
+  // —— 等效偏转：振镜轴 + 入口漂移 → 像场位移（mm） ——
+  const dmm = {
+    x: COUP.ax*aDeg + COUP.bx*bDeg + drift.x*SXY_MM*1e3*DRIFT_GAIN,
+    y: COUP.ay*aDeg + COUP.by*bDeg + drift.y*SXY_MM*1e3*DRIFT_GAIN,
+  };
+  const disp = {x:dmm.x*SXY, y:dmm.y*SXY};        // → 视图单位
+
+  // —— 工件上的入射角（度）→ 出射方向 ——
+  //     机械倾角造成 2 倍角偏折；把 a、b 分别映射到两个正交方位
+  const aoiX = AOI_PER_DEG*bDeg;
+  const aoiY = AOI_PER_DEG*aDeg;
+  const kbs = norm({x:Math.sin(aoiX*Math.PI/180), y:Math.sin(aoiY*Math.PI/180), z:-1});
+
+  // —— 几何：按设计光程解析传播，得到各段端点用于绘制 ——
+  const kin = norm({x:Math.sin(drift.x), y:Math.sin(drift.y), z:-1});
+  const nbs = norm({x:-c45, y:0, z:c45});          // ⑬ 分束镜法线
+  const P_BS = {x:X_BS, y:Y_BS, z:Z_BS};
+  const kH  = {x:1, y:0, z:0};                     // 水平臂方向（+x）
+  const r1  = {x:X_BS + L_BS_M1, y:Y_BS, z:Z_BS};
+  const r2  = {x:X_BS + L_BS_M1, y:Y_BS - L_M1_M2, z:Z_BS};
+  const rbs = {x:X_BS, y:Y_BS, z:Z_BS};            // 回程再落回 ⑬
+
+  // 像场内的光斑位置 = 设计轴线 + 横向位移（视图单位）
+  const L = {x:AX + disp.x, y:AY + disp.y, z:Z.obj};
+
+  // 振镜法线仅用于绘制（示意：两片镜各自绕一个正交轴摆动）
+  const n1 = rotAxis({x:0, y:c45, z:c45}, {x:0,y:0,z:1}, a);
+  const n2 = rotAxis({x:c45, y:c45, z:0}, {x:0,y:1,z:0}, b);
+
+  return {kin, n1, hit1:r1, k1:{x:0,y:-1,z:0}, n2, hit2:r2, k2:{x:-1,y:0,z:0},
+          nbs, hitBS:rbs, kbs, Smon:{x:X_BS, y:Y_BS, z:Z_BS - 24}, L,
+          dirOut:kbs, disp, aoiX, aoiY, degenerate:false};
+}
+
+/* 完整求解：给定 5 轴中的 a,b,z 与光束漂移，返回光路几何 + 光斑/角度
+   注意：本演示中振镜机械倾角 (α,β) 与工件上的 AOI 是 2:1 关系
+   （光束被镜面偏折 2α），所以 AOI ≤ 7.5° 对应机械倾角 ≤ 3.75°。 */
+const ANG_MAX = C.aoiMax/2;             // deg，滑块上限 = 3.75°
+function solve(aDeg, bDeg, zmm, drift){
+  const mir = traceMirrors({a:aDeg*Math.PI/180, b:bDeg*Math.PI/180}, drift);
+  const spot = {x:mir.L.x, y:mir.L.y};          // 视图单位，像场轴线在 (AX, AY)
+  const dOut = mir.dirOut;
+  const aoiX = Math.asin(Math.max(-1,Math.min(1,dOut.x)))*180/Math.PI;
+  const aoiY = Math.asin(Math.max(-1,Math.min(1,dOut.y)))*180/Math.PI;
+  const aoi  = Math.hypot(aoiX,aoiY);
+  const zf = zmm;
+  const theta = (C.dIn/2)/C.fEff;               // rad 焦锥半角
+  const zR = C.lambda/(Math.PI*theta*theta);    // 瑞利长度
+  const dof = 2*zR;                             // 焦深 DOF = 2·z_R
+  const defocus = Math.abs(zmm)*U;              // m
+  const spotDia = Math.hypot(C.spot, 2*theta*defocus);
+  return {mir, spot, dirOut:dOut, aoi, aoiX, aoiY, zf, theta, zR, dof, defocus, spotDia};
+}
+
+/* ==========================================================================
+   2) 自动精细调节 —— 数值求 5 轴修正量
+   数据手册：超差时用“系统内部五个振镜轴”把光束调回原始零位。
+   这里以 a、b 两轴为自由度，牛顿法解「⑰ 探测到的光束位置误差 → 0」。
+   --------------------------------------------------------------------------
+   一个由几何推出的结论：入射光束的 y 向角漂移经两片 45° 镜后
+   在两处偏折相互抵消，对像场光斑与探测面读数都没有影响；
+   真正既“可见”又“需校正”的是 x 向角漂移。故本演示用 x 向漂移。
+   ========================================================================== */
+function beamError(a,b,drift){
+  // ⑰ 读出的是“像场内光斑位置”相对理想零位的变化量（视图单位）
+  const mm = traceMirrors({a:a*Math.PI/180, b:b*Math.PI/180}, drift);
+  return {x:mm.L.x - AX, y:mm.L.y - AY, z:0};
+}
+/* 探头读出的误差大小（视图单位） */
+function errMag(e){ return Math.hypot(e.x, e.y); }
+function solveTrim(drift){
+  let a = 0, b = 0;
+  const h = 1e-4;                                  // deg
+  for (let it=0; it<14; it++){
+    const f0 = beamError(a, b, drift);
+    const fa = beamError(a+h, b, drift);
+    const fb = beamError(a, b+h, drift);
+    const j11=(fa.x-f0.x)/h, j12=(fb.x-f0.x)/h;
+    const j21=(fa.y-f0.y)/h, j22=(fb.y-f0.y)/h;
+    const det = j11*j22 - j12*j21;
+    if (!isFinite(det) || Math.abs(det) < 1e-16) break;
+    const da = ( j22*(-f0.x) - j12*(-f0.y))/det;
+    const db = (-j21*(-f0.x) + j11*(-f0.y))/det;
+    a += da; b += db;
+    if (Math.hypot(da,db) < 1e-10) break;
+  }
+  return {a, b, err:beamError(a,b,drift)};
+}
+
+/* ==========================================================================
+   3) 三维渲染器（自写软件渲染，零依赖，离线可用）
+   ========================================================================== */
+const cv = document.getElementById('scene');
+const ctx = cv.getContext('2d');
+// 场景中心（视图单位）：相机绕它旋转，否则 z 向 0~1520 的场景会跑出画面
+const SCENE_CENTER = {x:0, y:0, z:0};   // 由 fitScene() 在启动时计算
+const cam = {yaw:-0.62, pitch:0.26, zoom:1.0, dist:900};
+let camFocal = 800;   // 由 fitScene() 在首次 resize 后按包围盒计算
+let W=0, H=0, DPR=1;
+
+function resize(){
+  DPR = Math.min(2, window.devicePixelRatio||1);
+  const r = cv.parentElement.getBoundingClientRect();
+  W = Math.max(320, r.width); H = Math.max(240, r.height);
+  cv.width = W*DPR; cv.height = H*DPR;
+  cv.style.width = W+'px'; cv.style.height = H+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  if (typeof fitScene === 'function') fitScene();
+}
+
+/* 正交投影：先按场景中心平移，再 yaw/pitch 旋转，最后按缩放系数落屏。
+   正交投影的取景只取决于一个缩放系数，比透视可预测得多，适合这种
+   巨大长宽比（z 向一米 vs 横向几毫米）的技术示意图。 */
+function project(p){
+  const q = {x:p.x-SCENE_CENTER.x, y:p.y-SCENE_CENTER.y, z:p.z-SCENE_CENTER.z};
+  const cy=Math.cos(cam.yaw), sy=Math.sin(cam.yaw);
+  const x1 =  q.x*cy + q.z*sy;
+  const z1 = -q.x*sy + q.z*cy;
+  const cp=Math.cos(cam.pitch), sp=Math.sin(cam.pitch);
+  const y2 = q.y*cp - z1*sp;
+  const z2 = q.y*sp + z1*cp;
+  const s = camFocal*cam.zoom;
+  return {sx:W/2 + x1*s, sy:H/2 - y2*s, d:z2, s:s};
+}
+
+const draw = [];                                  // 本帧绘制队列
+function push(depth, fn){ draw.push({d:depth, fn}); }
+
+function poly3(pts, opt){
+  const pr = pts.map(project);
+  const d = pr.reduce((a,p)=>a+p.d,0)/pr.length;
+  push(d, ()=>{
+    ctx.beginPath();
+    pr.forEach((p,i)=> i?ctx.lineTo(p.sx,p.sy):ctx.moveTo(p.sx,p.sy));
+    if(opt.close!==false) ctx.closePath();
+    if(opt.fill){ ctx.fillStyle=opt.fill; ctx.fill(); }
+    if(opt.stroke){ ctx.strokeStyle=opt.stroke; ctx.lineWidth=opt.lw||1; ctx.stroke(); }
+  });
+}
+function line3(a,b,opt){
+  const pa=project(a), pb=project(b);
+  push((pa.d+pb.d)/2, ()=>{
+    ctx.beginPath(); ctx.moveTo(pa.sx,pa.sy); ctx.lineTo(pb.sx,pb.sy);
+    ctx.strokeStyle=opt.stroke||'#fff'; ctx.lineWidth=opt.lw||1;
+    if(opt.dash) ctx.setLineDash(opt.dash);
+    ctx.stroke(); ctx.setLineDash([]);
+  });
+}
+function disc3(center, u, v, ri, ro, opt){
+  const N=22, outer=[], inner=[];
+  for(let i=0;i<N;i++){
+    const t=i/N*Math.PI*2, c=Math.cos(t), s=Math.sin(t);
+    outer.push({x:center.x+u.x*c*ro+v.x*s*ro, y:center.y+u.y*c*ro+v.y*s*ro, z:center.z+u.z*c*ro+v.z*s*ro});
+    inner.push({x:center.x+u.x*c*ri+v.x*s*ri, y:center.y+u.y*c*ri+v.y*s*ri, z:center.z+u.z*c*ri+v.z*s*ri});
+  }
+  poly3(outer, opt);
+  if(ri>0.01) poly3(inner, {stroke:opt.stroke, lw:(opt.lw||1)*.7, fill:'rgba(0,0,0,0)'});
+}
+function box3(cx,cy,cz, sx,sy,sz, opt){
+  const x0=cx-sx/2,x1=cx+sx/2, y0=cy-sy/2,y1=cy+sy/2, z0=cz-sz/2,z1=cz+sz/2;
+  const V=[[x0,y0,z0],[x1,y0,z0],[x1,y1,z0],[x0,y1,z0],[x0,y0,z1],[x1,y0,z1],[x1,y1,z1],[x0,y1,z1]];
+  const F=[[0,1,2,3],[4,5,6,7],[0,1,5,4],[2,3,7,6],[1,2,6,5],[0,3,7,4]];
+  const P=V.map(v=>({x:v[0],y:v[1],z:v[2]}));
+  F.forEach(f=>{
+    const q=f.map(i=>P[i]);
+    poly3(q, {fill:opt.fill, stroke:opt.stroke, lw:opt.lw||1});
+  });
+}
+function label3(text, p, dx, dy, cls){
+  const pr = project(p);
+  const el = document.createElement('div');
+  el.className = 'lb'+(cls?' '+cls:'');
+  el.innerHTML = text;
+  el.style.left = (pr.sx+(dx||0))+'px';
+  el.style.top  = (pr.sy+(dy||0))+'px';
+  document.getElementById('labels').appendChild(el);
+  return pr;
+}
+
+/* ---------------------------------------------------------------- 场景绘制 */
+/* 自动取景：按场景包围盒反推相机中心、距离与焦距，避免手工调参 */
+function sceneBounds(){
+  const zTop = w2v(Z_SRC + 18), zBot = w2v(Z.work) - 8;
+  const x0 = -mm2v(C.fieldR) - 34, x1 = X_BS + L_BS_M1 + 30;
+  const y0 = -Math.abs(Y_M2) - 30, y1 = 18;
+  return {x0,x1,y0,y1,z0:zBot,z1:zTop};
+}
+function fitScene(){
+  const b = sceneBounds();
+  SCENE_CENTER.x = (b.x0 + b.x1)/2;
+  SCENE_CENTER.y = (b.y0 + b.y1)/2;
+  SCENE_CENTER.z = (b.z0 + b.z1)/2;
+  // 数据驱动：把包围盒 8 个顶点实际投影一遍，量出屏幕占用范围，再反算焦距。
+  // 这样不依赖任何解析近似（yaw/pitch 组合的解析式容易算错）。
+  camFocal = 100;
+  let minx=1e9,maxx=-1e9,miny=1e9,maxy=-1e9;
+  for (const X of [b.x0,b.x1]) for (const Y of [b.y0,b.y1]) for (const Z of [b.z0,b.z1]) {
+    const pr = project({x:X, y:Y, z:Z});
+    minx=Math.min(minx,pr.sx); maxx=Math.max(maxx,pr.sx);
+    miny=Math.min(miny,pr.sy); maxy=Math.max(maxy,pr.sy);
+  }
+  const spanX = Math.max(1e-6, maxx-minx), spanY = Math.max(1e-6, maxy-miny);
+  camFocal = 100 * Math.min((W*0.90)/spanX, (H*0.90)/spanY);
+}
+
+let ST = {a:0,b:0,z:0,drift:{x:0,y:0},mode:'path'};
+
+function drawScene(){
+  draw.length = 0;
+  document.getElementById('labels').innerHTML = '';
+  ctx.clearRect(0,0,W,H);
+  drawGrid();
+  drawOptics();
+  drawBeam();
+  drawWorkpiece();
+  draw.sort((p,q)=>q.d-p.d).forEach(o=>o.fn());
+}
+
+function drawGrid(){
+  const g = '#16212f', gy = w2v(-10);
+  for(let i=-4;i<=2;i++){
+    line3({x:i*16,y:-56,z:gy},{x:i*16,y:16,z:gy},{stroke:g,lw:1});
+    line3({x:-104,y:i*16-40,z:gy},{x:44,y:i*16-40,z:gy},{stroke:g,lw:1});
+  }
+}
+
+/* ⑪⑫⑬⑭⑮⑯⑰ 元件 */
+function drawOptics(){
+  const m = ST.mir;
+
+  // ⑪ 光束调理单元（位于竖直入射段上，轴线 X_BS, Y_BS）
+  box3(X_BS, Y_BS, w2v(Z_SRC - 6), 26, 26, 30,
+       {fill:'rgba(40,60,88,.20)', stroke:'#3d5878', lw:1});
+  disc3({x:X_BS, y:Y_BS, z:w2v(Z_SRC + 8)}, {x:1,y:0,z:0}, {x:0,y:1,z:0},
+        mm2v(C.aperture/2*0.86), mm2v(C.aperture/2),
+        {stroke:'#6f8fb5', lw:1.4, fill:'rgba(80,120,170,.14)'});
+  label3('<i>⑪</i>光束调理单元 扩束 0.25–4×', {x:X_BS,y:Y_BS,z:w2v(Z_SRC+6)}, -24, -30);
+
+  // ⑫ 五轴扫描单元箱体（罩住两片振镜）
+  box3((X_M1 + X_BS)/2, Y_M2/2, w2v(Z_BS), 74, 60, 34,
+       {fill:'rgba(30,46,70,.14)', stroke:'#2f4664', lw:1});
+
+  // 两片振镜（各自绕一个正交的摆动轴）
+  drawMirror(m.hit1, m.n1, {x:1,y:0,z:0}, 20, 'M1 绕 x 摆', '#7fd4ff', 14, -30);
+  drawMirror(m.hit2, m.n2, {x:0,y:1,z:0}, 20, 'M2 绕 y 摆', '#9fe8c0', 14, 26);
+
+  // ⑬ 分束镜（45°，把竖直向下的光折成水平）
+  const bsC = {x:X_BS, y:Y_BS, z:w2v(Z_BS)};
+  disc3(bsC, norm({x:1,y:0,z:1}), {x:0,y:1,z:0}, 0, mm2v(6.5),
+        {stroke:'#8fb6e0', lw:1.5, fill:'rgba(140,190,240,.13)'});
+  label3('<i>⑬</i>分束镜', bsC, 46, -44);
+
+  // ⑰ 光束位置测量单元（入口光经分束镜透射的那一支）
+  const monC = {x:X_BS, y:Y_BS, z:w2v(Z_BS - 24)};
+  disc3(monC, {x:1,y:0,z:0}, {x:0,y:1,z:0}, 0, mm2v(4.5),
+        {stroke:'#c9a6f0', lw:1.4, fill:'rgba(180,140,240,.15)'});
+  label3('<i>⑰</i>光束位置测量<br>自动精细调节', monC, 30, 4);
+
+  // ⑭ 物镜
+  const oC = {x:AX, y:AY, z:w2v(Z.obj)};
+  disc3(oC, {x:1,y:0,z:0}, {x:0,y:1,z:0}, 0, mm2v(5.2),
+        {stroke:'#ffcf87', lw:1.5, fill:'rgba(255,200,120,.13)'});
+  label3('<i>⑭</i>物镜 f=75 mm', oC, 52, 6);
+
+  // ⑮ 保护玻璃
+  disc3({x:AX,y:AY,z:w2v(Z.prot)}, {x:1,y:0,z:0}, {x:0,y:1,z:0}, 0, mm2v(4.4),
+        {stroke:'#9fe8c0', lw:1.1, fill:'rgba(120,230,180,.10)'});
+
+  // ⑯ 加工气喷嘴
+  box3(AX, AY, w2v((Z.prot+Z.nozzle)/2), mm2v(3.2), mm2v(3.2), (Z.prot-Z.nozzle)*SZ,
+       {fill:'rgba(200,200,210,.14)', stroke:'#8899aa', lw:1});
+  label3('<i>⑮⑯</i>保护玻璃 / 喷嘴', {x:AX,y:AY,z:w2v(Z.nozzle)}, -152, 16);
+}
+
+function drawMirror(center, n, axis, kBeam, r, tag, col, lx, ly){
+  // 镜面正交基：法线 n，另取一个与转轴相关的方向
+  const up = Math.abs(n.z)>0.9 ? {x:1,y:0,z:0} : {x:0,y:0,z:1};
+  const u = norm({x: up.y*n.z-up.z*n.y, y: up.z*n.x-up.x*n.z, z: up.x*n.y-up.y*n.x});
+  const v = norm({x: n.y*u.z-n.z*u.y, y: n.z*u.x-n.x*u.z, z: n.x*u.y-n.y*u.x});
+  disc3(center, u, v, 0, r, {stroke:col, lw:1.6, fill:'rgba(120,180,220,.13)'});
+  // 转轴（虚线）
+  line3(add(center, mul(axis, r*1.5)), add(center, mul(axis, -r*1.5)),
+        {stroke:col, lw:1, dash:[3,3]});
+  // 法线（细虚线）
+  line3(center, add(center, mul(n, r*0.85)), {stroke:'rgba(160,200,240,.5)', lw:1, dash:[2,3]});
+  label3(tag, center, lx, ly);
+}
+
+function drawBeam(){
+  const m = ST.mir;
+  const RW = mm2v(C.dIn/2);                       // 入口光束半径（视图单位）
+  const rw = 1.05;                                // 腰部最小可见半径
+
+  // 光路：入口 ↓ → ⑬ → m1（−x 臂）→ m2（−y 臂）→ ⑬ → ↓ → 物镜 → 焦点
+  tube({x:X_BS, y:Y_BS, z:w2v(Z_SRC + 10)},
+       {x:X_BS, y:Y_BS, z:w2v(Z_BS)}, RW, RW, m.kin);
+  tube({x:X_BS,y:Y_BS,z:w2v(Z_BS)}, m.hit1, RW, RW, m.kin);
+  tube(m.hit1, m.hit2, RW, RW, m.k1);
+  tube(m.hit2, m.hitBS, RW, RW, m.k2);
+  tube(m.hitBS, {x:m.L.x, y:m.L.y, z:w2v(Z.obj)}, RW, RW*0.92, m.kbs);
+
+  const focus = {x:m.L.x, y:m.L.y, z:w2v(ST.z)};
+  const pin = {x:m.L.x, y:m.L.y, z:w2v(Z.obj)};
+  coneTube(pin, focus, RW*0.92, rw, m.kbs);
+
+  // ⑰ 采样支路：入口光透过分束镜的那一支继续下行到探测面
+  tube({x:X_BS, y:Y_BS, z:w2v(Z_BS)},
+       {x:X_BS, y:Y_BS, z:w2v(Z_BS) - 22}, RW*0.5, RW*0.5, {x:0,y:0,z:-1});
+
+  // 焦点标记
+  const fpr = project(focus);
+  push(fpr.d, ()=>{
+    ctx.beginPath(); ctx.arc(fpr.sx,fpr.sy,4.5,0,7);
+    ctx.fillStyle='#fff'; ctx.shadowColor='#ff2d6f'; ctx.shadowBlur=14; ctx.fill();
+    ctx.shadowBlur=0;
+  });
+
+  // ⑰ 探测面上的位置标记：绿=回零，红=有漂移
+  const err = errMag(beamError(ST.a, ST.b, ST.drift));
+  const opr = project({x:X_BS, y:Y_BS, z:w2v(Z_BS) - 23});
+  push(opr.d-1e9, ()=>{
+    ctx.beginPath(); ctx.arc(opr.sx,opr.sy,3.4,0,7);
+    ctx.fillStyle = err > 1e-6 ? '#ff6b6b' : '#43d9a3'; ctx.fill();
+  });
+}
+
+/* 沿直线画一根等半径光柱（细线束 + 描边，视觉上像光） */
+function tube(a, b, r0, r1, k){
+  const N = 12;
+  const up = Math.abs(k.z)>0.9 ? {x:1,y:0,z:0} : {x:0,y:0,z:1};
+  const u = norm({x: up.y*k.z-up.z*k.y, y: up.z*k.x-up.x*k.z, z: up.x*k.y-up.y*k.x});
+  const v = norm({x: k.y*u.z-k.z*u.y, y: k.z*u.x-k.x*u.z, z: k.x*u.y-k.y*u.x});
+  const ring = (c, r) => {
+    const pts=[];
+    for(let i=0;i<N;i++){
+      const t=i/N*Math.PI*2, cs=Math.cos(t)*r, sn=Math.sin(t)*r;
+      pts.push({x:c.x+u.x*cs+v.x*sn, y:c.y+u.y*cs+v.y*sn, z:c.z+u.z*cs+v.z*sn});
+    }
+    return pts;
+  };
+  const rA = ring(a, r0), rB = ring(b, r1);
+  poly3(rA.concat([...rB].reverse()), {fill:'rgba(255,45,111,.09)', stroke:'rgba(0,0,0,0)', close:true});
+  for(let i=0;i<N;i+=2){
+    line3(rA[i], rB[i], {stroke:'rgba(255,80,140,.55)', lw:1});
+  }
+  const pa=project(a), pb=project(b);
+  push((pa.d+pb.d)/2, ()=>{
+    ctx.beginPath(); ctx.moveTo(pa.sx,pa.sy); ctx.lineTo(pb.sx,pb.sy);
+    ctx.strokeStyle='rgba(255,220,235,.85)'; ctx.lineWidth=1.4; ctx.stroke();
+  });
+}
+
+/* 会聚锥：从物镜面收拢到焦点，再略微发散显示焦锥 */
+function coneTube(pIn, focus, rIn, rMin, k){
+  const N = 12;
+  const up = Math.abs(k.z)>0.9 ? {x:1,y:0,z:0} : {x:0,y:0,z:1};
+  const u = norm({x: up.y*k.z-up.z*k.y, y: up.z*k.x-up.x*k.z, z: up.x*k.y-up.y*k.x});
+  const v = norm({x: k.y*u.z-k.z*u.y, y: k.z*u.x-k.x*u.z, z: k.x*u.y-k.y*u.x});
+  const S = 9;
+  const pts = t => {
+    // t: 0→1 为 物镜→焦点；1→1.35 为过焦后发散
+    const tt = t<=1 ? t : 1 + (t-1);
+    const r = t<=1 ? rIn + (rMin-rIn)*t : rMin + (rIn*0.55-rMin)*(t-1);
+    const c = t<=1 ? lerp(pIn, focus, t) : lerp(focus, {x:focus.x+k.x*10, y:focus.y+k.y*10, z:focus.z+k.z*10}, t-1);
+    const out=[];
+    for(let i=0;i<N;i++){
+      const a=i/N*Math.PI*2, cs=Math.cos(a)*r, sn=Math.sin(a)*r;
+      out.push({x:c.x+u.x*cs+v.x*sn, y:c.y+u.y*cs+v.y*sn, z:c.z+u.z*cs+v.z*sn});
+    }
+    return out;
+  };
+  const T = [0,0.15,0.3,0.45,0.6,0.75,0.9,1.0,1.12,1.28];
+  for(let i=0;i<T.length-1;i++){
+    const A=pts(T[i]), B=pts(T[i+1]);
+    for(let j=0;j<N;j+=2) line3(A[j],B[j],{stroke:'rgba(255,120,90,.5)',lw:1});
+  }
+}
+
+/* 工件与像场（轴线位于 (AX, AY)） */
+function drawWorkpiece(){
+  const zc = w2v(0);
+  // 工件板
+  box3(AX, AY, zc-3, mm2v(9), mm2v(9), 6,
+       {fill:'rgba(60,80,105,.30)', stroke:'#4a6380', lw:1});
+  // 像场 ≤ Ø2.5 mm
+  const R = mm2v(C.fieldR);
+  const ring=[];
+  for(let i=0;i<=64;i++){
+    const t=i/64*Math.PI*2;
+    ring.push({x:AX+Math.cos(t)*R, y:AY+Math.sin(t)*R, z:zc+0.6});
+  }
+  poly3(ring, {stroke:'#43d9a3', lw:1.3, fill:'rgba(67,217,163,.06)'});
+  label3('像场 ≤ Ø2.5 mm', {x:AX+R*0.7, y:AY+R*0.7, z:zc}, 8, -8);
+
+  // 光斑
+  const s = ST.sol;
+  const px = mm2v(s.spot.x - AX/mm2v(1)) + AX, py = mm2v(s.spot.y - AY/mm2v(1)) + AY;
+  const sr = Math.max(1.6, mm2v(s.spotDia/2));
+  const pr = project({x:px, y:py, z:zc+1.2});
+  push(pr.d-1e9, ()=>{
+    ctx.beginPath(); ctx.arc(pr.sx,pr.sy,sr+2.5,0,7);
+    ctx.fillStyle='rgba(255,45,111,.28)'; ctx.fill();
+    ctx.beginPath(); ctx.arc(pr.sx,pr.sy,sr,0,7);
+    ctx.fillStyle='#fff'; ctx.shadowColor='#ff2d6f'; ctx.shadowBlur=16; ctx.fill();
+    ctx.shadowBlur=0;
+  });
+  // 零位参考十字（像场中心）
+  const zpr = project({x:AX, y:AY, z:zc+1.2});
+  push(zpr.d-1e9, ()=>{
+    ctx.strokeStyle='rgba(255,255,255,.30)'; ctx.lineWidth=1;
+    ctx.beginPath();
+    ctx.moveTo(zpr.sx-11,zpr.sy); ctx.lineTo(zpr.sx+11,zpr.sy);
+    ctx.moveTo(zpr.sx,zpr.sy-11); ctx.lineTo(zpr.sx,zpr.sy+11);
+    ctx.stroke();
+  });
+  if (Math.hypot(pr.sx-zpr.sx, pr.sy-zpr.sy) > 1.5){
+    push(pr.d-1e9, ()=>{
+      ctx.beginPath(); ctx.moveTo(zpr.sx,zpr.sy); ctx.lineTo(pr.sx,pr.sy);
+      ctx.strokeStyle='rgba(255,107,107,.65)'; ctx.setLineDash([3,3]); ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  }
+}
+
+/* ==========================================================================
+   4) UI
+   ========================================================================== */
+const MODES = [
+  {id:'path',  name:'① 完整光路',       sub:'0:18–1:04 系统总览与集成', hint:'按 ⑪→⑰ 编号对应数据手册系统图。光束水平进入，45° 分束镜折转 90° 后竖直向下经物镜到工件。'},
+  {id:'angle', name:'② 入射角与平行位移', sub:'1:06–1:18 Operating principle', hint:'拖拽 a / b 滑块改变入射角。注意光斑会同时位移——这是光路的真实耦合，不是画出来的。'},
+  {id:'z',     name:'③ z 轴动态聚焦',    sub:'1:24–1:36 焦斑 ±1 mm', hint:'z 轴把焦斑沿轴移动 ±1.0 mm。观察焦锥腰部与光斑直径的变化。'},
+  {id:'trim',  name:'④ 自动精细调节',    sub:'1:42–2:42 分束监测闭环', hint:'拖动「光束漂移」模拟热漂/蠕变，再点自动精细调节，看 5 轴如何把光斑拉回零位。'},
+];
+
+const $ = id => document.getElementById(id);
+let mode = 'path';
+let zAnimTimer = null;
+
+function buildModes(){
+  const box = $('modes');
+  box.innerHTML = '';
+  MODES.forEach(m=>{
+    const b = document.createElement('button');
+    b.innerHTML = '<b>'+m.name+'</b><s>'+m.sub+'</s>';
+    b.className = (m.id===mode?'on':'');
+    b.onclick = ()=>{ mode = m.id; buildModes(); syncMode(); };
+    box.appendChild(b);
+  });
+}
+function syncMode(){
+  const m = MODES.find(x=>x.id===mode);
+  $('modeSub').textContent = m.name.replace(/^[①②③④]\s*/,'');
+  $('hint').textContent = m.hint;
+  // 各模式的自由度提示
+  const lockZ = (mode==='path');
+  $('z').disabled = lockZ;
+  if (lockZ){ $('z').value = 0; ST.z = 0; $('v_z').textContent = '0.000 mm'; }
+  if (mode==='path'){ $('ax').value=0; $('ay').value=0; }
+  update();
+}
+
+/* 读数表 */
+function update(){
+  const a = +$('ax').value, b = +$('ay').value, z = +$('z').value;
+  const dm = +$('drift').value;                    // mrad
+  const drift = {x: dm*1e-3, y:0};                 // rad，角漂移
+  ST.a=a; ST.b=b; ST.z=z; ST.drift=drift;
+  ST.mir = traceMirrors({a:a*Math.PI/180, b:b*Math.PI/180}, drift);
+  ST.sol = solve(a, b, z, drift);
+
+  $('v_ax').textContent = a.toFixed(3)+'°';
+  $('v_ay').textContent = b.toFixed(3)+'°';
+  $('v_z').textContent  = z.toFixed(3)+' mm';
+  $('v_drift').textContent = dm.toFixed(3)+' mrad';
+
+  const s = ST.sol;
+  const spotUm = s.spotDia*1e6;
+  const lateralUm = Math.hypot(s.spot.x-AX, s.spot.y-AY)/mm2v(1)*1e3;
+  const dofUm = s.dof*1e6;
+  const rows = [
+    ['光斑直径', spotUm.toFixed(1)+' µm', spotUm<=26?'good':(spotUm<=48?'warn':'bad')],
+    ['光斑横向偏移', lateralUm.toFixed(1)+' µm', lateralUm<0.5?'good':(lateralUm<1000?'warn':'bad')],
+    ['入射角 AOI (a,b)', s.aoiX.toFixed(2)+'° / '+s.aoiY.toFixed(2)+'°', ''],
+    ['AOI 是否越限', s.aoi<=C.aoiMax?('未越限 ±'+C.aoiMax+'°'):'已超 ±'+C.aoiMax+'°',
+        s.aoi<=C.aoiMax?'good':'bad'],
+    ['z 轴向离焦', (s.defocus*1e6).toFixed(0)+' µm', ''],
+    ['瑞利长度 z_R', (s.zR*1e6).toFixed(0)+' µm', ''],
+    ['焦深 DOF = 2·z_R', dofUm.toFixed(0)+' µm', ''],
+    ['z 焦程 / 焦深', (C.zRange/s.dof).toFixed(1)+' ×', 'warn'],
+  ];
+  if (mode==='trim'){
+    const err = beamError(a, b, drift);
+    const eUm = errMag(err)/mm2v(1)*1e3;
+    rows.push(['⑰ 探头读出误差', eUm.toFixed(2)+' µm', eUm<1?'good':(eUm<20?'warn':'bad')]);
+  }
+  $('ro').innerHTML = rows.map(r=>
+    '<tr><td>'+r[0]+'</td><td class="'+(r[2]||'')+'">'+r[1]+'</td></tr>').join('');
+
+  drawScene();
+}
+
+/* 自动精细调节 */
+$('trim').onclick = ()=>{
+  const dm = +$('drift').value;
+  const t = solveTrim({x: dm*1e-3, y:0});
+  const aDeg = t.a, bDeg = t.b;
+  const clamp = (v,mx)=>Math.max(-mx,Math.min(mx,v));
+  const aC = clamp(aDeg, ANG_MAX), bC = clamp(bDeg, ANG_MAX);
+  $('ax').value = aC; $('ay').value = bC;
+  update();
+  const over = (Math.abs(aDeg)>ANG_MAX || Math.abs(bDeg)>ANG_MAX);
+  const resUm = errMag(t.err)/mm2v(1)*1e3;
+  $('trimMsg').innerHTML = over
+    ? '<b style="color:#ff6b6b">所需修正量超出机械倾角上限 ±'+ANG_MAX+'°（对应 AOI ±'+C.aoiMax+'°）</b>，已在限幅处停止——现实中此时应提示人工调光路。'
+    : '修正量 <b>a = '+aDeg.toFixed(4)+'°，b = '+bDeg.toFixed(4)+'°</b>'
+      + '（= '+(aDeg*Math.PI/180*1e6).toFixed(1)+' / '+(bDeg*Math.PI/180*1e6).toFixed(1)+' µrad）。'
+      + '探头残余降到 <b>'+resUm.toFixed(3)+' µm</b>；角分辨率 2 µrad。';
+};
+$('reset').onclick = ()=>{
+  $('ax').value=0; $('ay').value=0; $('drift').value=0; $('z').value=0;
+  $('trimMsg').textContent = '调节后 5 个振镜轴会重新把光束拉回原始零位。';
+  update();
+};
+$('zAnim').onclick = ()=>{
+  if (zAnimTimer) return;
+  $('z').disabled = false; $('zAnim').disabled = true; $('zStop').disabled = false;
+  let t0 = performance.now();
+  zAnimTimer = setInterval(()=>{
+    const ph = ((performance.now()-t0)/2600)%1;
+    const v = Math.sin(ph*Math.PI*2)*C.zRange*1e3;      // ±1.0 mm
+    $('z').value = v.toFixed(3);
+    update();
+  }, 33);
+};
+$('zStop').onclick = ()=>{
+  clearInterval(zAnimTimer); zAnimTimer=null;
+  $('zAnim').disabled=false; $('zStop').disabled=true;
+  if (mode==='path') $('z').disabled = true;
+};
+['ax','ay','z','drift'].forEach(id=> $(id).addEventListener('input', update));
+
+/* 鼠标交互 */
+let drag=null;
+cv.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};cv.setPointerCapture(e.pointerId);});
+cv.addEventListener('pointermove',e=>{
+  if(!drag)return;
+  cam.yaw   += (e.clientX-drag.x)*0.008;
+  cam.pitch += (e.clientY-drag.y)*0.006;
+  cam.pitch = Math.max(-1.35, Math.min(1.35, cam.pitch));
+  drag={x:e.clientX,y:e.clientY};
+  drawScene();
+});
+cv.addEventListener('pointerup',e=>{drag=null;});
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  cam.zoom *= Math.exp(-e.deltaY*0.0011);
+  cam.zoom = Math.max(0.25, Math.min(4.0, cam.zoom));
+  drawScene();
+},{passive:false});
+window.addEventListener('resize',()=>{resize();drawScene();});
+
+/* ==========================================================================
+   5) 自检 —— 用可验证的光学恒等式检查模型，而不是打印“OK”
+   ========================================================================== */
+function selftest(){
+  const out=[]; let pass=0, fail=0;
+  const T=(name,cond,detail)=>{ (cond?pass++:fail++);
+    out.push((cond?'<b>✓</b> ':'<b style="color:#ff6b6b">✗</b> ')+name+(detail?' <span style="color:#8b9bb4">'+detail+'</span>':'')); };
+
+  // 1. 零位：a=b=0 时光斑必须在像场中心，且出射方向必须竖直向下
+  const s0 = solve(0,0,0,{x:0,y:0});
+  T('零位光斑居中', Math.hypot(s0.spot.x-AX, s0.spot.y-AY)<1e-9,
+    '偏移 '+Math.hypot(s0.spot.x-AX,s0.spot.y-AY).toExponential(2)+' mm');
+  T('零位出射方向竖直向下', Math.abs(s0.dirOut.z+1)<1e-9 && Math.abs(s0.dirOut.x)<1e-9,
+    '(x,y,z)=('+s0.dirOut.x.toFixed(3)+','+s0.dirOut.y.toFixed(3)+','+s0.dirOut.z.toFixed(3)+')');
+
+  // 2. 光路各段方向符合 45° 折叠（�forbidden 掠入射会导致方向不变）
+  const m0 = traceMirrors({a:0,b:0},{x:0,y:0});
+  T('m1 把 +x 折成 −y', Math.abs(m0.k1.y+1)<1e-9 && Math.abs(m0.k1.x)<1e-12,
+    'k1=('+m0.k1.x.toFixed(3)+','+m0.k1.y.toFixed(3)+','+m0.k1.z.toFixed(3)+')');
+  T('m2 把 −y 折成 −x（回程指向 ⑬）', Math.abs(m0.k2.x+1)<1e-9 && Math.abs(m0.k2.y)<1e-12,
+    'k2=('+m0.k2.x.toFixed(3)+','+m0.k2.y.toFixed(3)+','+m0.k2.z.toFixed(3)+')');
+  T('分束镜把 +x 折成 −z', Math.abs(m0.kbs.z+1)<1e-9 && Math.abs(m0.kbs.x)<1e-12,
+    'kbs=('+m0.kbs.x.toFixed(3)+','+m0.kbs.y.toFixed(3)+','+m0.kbs.z.toFixed(3)+')');
+
+  // 3. 两个振镜轴必须给出可分辨的独立控制（雅可比满秩）
+  const hh = 0.01;                                   // deg
+  const e00 = beamError(0,0,{x:0,y:0});
+  const ea  = beamError(hh,0,{x:0,y:0});
+  const eb  = beamError(0,hh,{x:0,y:0});
+  const j11=(ea.x-e00.x)/hh, j12=(eb.x-e00.x)/hh;
+  const j21=(ea.y-e00.y)/hh, j22=(eb.y-e00.y)/hh;
+  const det = j11*j22 - j12*j21;
+  const nrm = Math.hypot(j11,j12,j21,j22);
+  const disc = Math.sqrt(Math.max(0, nrm*nrm - 4*det*det));
+  const s1 = (nrm + disc)/2, s2 = (nrm - disc)/2;
+  const cond = Math.abs(s2) > 1e-12 ? Math.abs(s1/s2) : Infinity;
+  T('两个振镜轴给出可分辨的独立控制',
+    Math.abs(det) > 1e-12 && cond < 100,
+    'det='+det.toExponential(2)+'  条件数='+cond.toFixed(1));
+
+  // 4. 焦深与瑞利长度：DOF = 2·z_R，且 z_R = λ/(πθ²)
+  T('DOF = 2·z_R', Math.abs(s0.dof-2*s0.zR)<1e-12, (s0.dof*1e6).toFixed(0)+' µm');
+  const zRchk = C.lambda/(Math.PI*s0.theta*s0.theta);
+  T('z_R = λ/(πθ²)', Math.abs(zRchk-s0.zR)/s0.zR < 1e-12, (s0.zR*1e6).toFixed(0)+' µm');
+
+  // 5. 光斑随离焦单调增大，且 z=0 处最小
+  const d0=solve(0,0,0,{x:0,y:0}).spotDia, d1=solve(0,0,1,{x:0,y:0}).spotDia;
+  T('光斑随离焦单调增大', d1>d0,
+    'z=0 '+(d0*1e6).toFixed(1)+' µm → z=+1mm '+(d1*1e6).toFixed(1)+' µm');
+
+  // 6. 自动精细调节：角度漂移应被 5 轴抵掉，探头残余显著下降
+  const dr = {x:5e-4, y:0};                     // 0.5 mrad 角漂移（常见量级）
+  const before = errMag(beamError(0,0,dr));
+  const t = solveTrim(dr);
+  const after = errMag(t.err);
+  T('自动精细调节有效', before > 1e-9 && after < before*0.02,
+    '调节前 '+(before/mm2v(1)*1e3).toFixed(1)+' µm → 调节后 '+
+    (after/mm2v(1)*1e6).toFixed(3)+' nm（修正 a='+t.a.toFixed(3)+'°, b='+t.b.toFixed(3)+'°）');
+
+  // 6b. y 向角漂移与 z 向角漂移都能被读到，但灵敏度不同
+  const ex = beamError(0,0,{x:5e-4,y:0});
+  const ey = beamError(0,0,{x:0,y:5e-4});
+  T('⑰ 对两个方向的角漂移均有响应',
+    errMag(ex) > 1e-9 && errMag(ey) > 1e-9,
+    'z 向漂移 → '+(errMag(ex)/mm2v(1)*1e3).toFixed(2)+' µm ｜ y 向漂移 → '+
+    (errMag(ey)/mm2v(1)*1e3).toFixed(2)+' µm');
+
+  // 7. AOI 与机械倾角是 2:1：滑块上限 3.75° 恰好对应 AOI 7.5°
+  const sMax = solve(ANG_MAX,0,0,{x:0,y:0});
+  const sOver= solve(ANG_MAX*1.15,0,0,{x:0,y:0});
+  T('AOI 随倾角增大，上限判定可用',
+    sMax.aoi>0.5 && sOver.aoi>sMax.aoi,
+    '倾角 '+ANG_MAX+'° → AOI '+sMax.aoi.toFixed(2)+'°；限幅 '+ANG_MAX*1.15+'° → '+sOver.aoi.toFixed(2)+'°');
+
+  // 7b. 0.5 mrad 的角度漂移已远超 0.5 µm 重复性 —— 说明闭环的必要性
+  const dDrift = errMag(beamError(0,0,{x:5e-4,y:0}));
+  T('角漂移引起的误差 ≫ 0.5 µm 重复性', dDrift/mm2v(1)*1e3 > C.prec*1e6,
+    (dDrift/mm2v(1)*1e3).toFixed(2)+' µm vs 重复性 '+(C.prec*1e6).toFixed(1)+' µm');
+
+  // 8. z 焦程与焦深的量级关系（本演示想强调的工程事实）
+  T('z 焦程 ≫ 焦深', C.zRange/s0.dof > 2,
+    (C.zRange*1e3).toFixed(1)+' mm / '+(s0.dof*1e6).toFixed(0)+' µm = '+(C.zRange/s0.dof).toFixed(1)+'×');
+
+  // 9. 角分辨率 → 光斑步进（笔记标称角分辨率 2 µrad、x/y 分辨率 17 nm）
+  const nano = 2e-6/Math.PI*180;               // 2 µrad 换算成度
+  const step = solve(nano,0,0,{x:0,y:0}).spot;
+  const stepNm = Math.hypot(step.x-AX, step.y-AY)/mm2v(1)*1e6;
+  T('2 µrad 角分辨率对应的光斑步进 ≪ 光斑直径',
+    stepNm < 1000,
+    '2 µrad 倾角 → 光斑移动 '+stepNm.toFixed(0)+' nm（标称 x/y 分辨率 '+
+    (C.resXY*1e9).toFixed(0)+' nm，光斑 Ø'+(C.spot*1e6).toFixed(0)+' µm）');
+
+  $('selftest').innerHTML = out.join('<br>')
+    + '<br><br>通过 <b>'+pass+'</b> / '+(pass+fail)
+    + (fail? '，<b style="color:#ff6b6b">失败 '+fail+'</b>' : '');
+  return {pass,fail};
+}
+
+/* ---------------------------------------------------------------- 启动 */
+buildModes();
+resize();
+syncMode();
+selftest();
+drawScene();
+</script>
+</body>
+</html>

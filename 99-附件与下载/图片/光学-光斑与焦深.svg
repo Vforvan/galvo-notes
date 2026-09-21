@@ -1,0 +1,109 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 700" width="1120" height="700" font-family="'Segoe UI','Microsoft YaHei',sans-serif">
+  <defs>
+    <style>
+      .t   { font-size:13px; fill:#212121; }
+      .tb  { font-size:14px; font-weight:700; fill:#212121; }
+      .ts  { font-size:11px; fill:#616161; }
+      .cap { font-size:12px; fill:#424242; }
+      .axis{ stroke:#9e9e9e; stroke-width:1; stroke-dasharray:6,5; }
+      .lens{ fill:#fff4e1; stroke:#e0a800; stroke-width:2; }
+      .ok  { fill:#e8f5e9; stroke:#388e3c; stroke-width:1.5; }
+      .warn{ fill:#fff8e1; stroke:#f9a825; stroke-width:1.5; }
+      .gray{ fill:#fafafa; stroke:#bdbdbd; stroke-width:1.5; }
+    </style>
+  </defs>
+
+  <text x="560" y="26" style="font-size:19px;font-weight:700;fill:#212121;text-anchor:middle">聚焦光斑与焦深：光斑越细，焦深越短</text>
+
+  <!-- ================= ① 光束怎么变成光斑 ================= -->
+  <rect x="24" y="44" width="1072" height="256" rx="8" fill="#fafcff" stroke="#bbdefb" stroke-width="1.5"/>
+  <text x="44" y="68" class="tb" fill="#1565c0">① 光束怎么变成光斑</text>
+
+  <line x1="50" y1="220" x2="1070" y2="220" class="axis"/>
+  <text x="50" y="236" class="ts">光轴</text>
+
+  <!-- 入射平行光束 -->
+  <line x1="50" y1="200" x2="250" y2="200" stroke="#ef5350" stroke-width="2"/>
+  <line x1="50" y1="240" x2="250" y2="240" stroke="#ef5350" stroke-width="2"/>
+
+  <!-- D 标注 -->
+  <line x1="70" y1="200" x2="70" y2="240" stroke="#1565c0" stroke-width="1.5"/>
+  <line x1="63" y1="200" x2="77" y2="200" stroke="#1565c0" stroke-width="1.5"/>
+  <line x1="63" y1="240" x2="77" y2="240" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="80" y="196" class="ts" fill="#1565c0" font-weight="700">D（由扩束决定）</text>
+
+  <!-- 场镜 -->
+  <rect x="250" y="190" width="14" height="60" rx="5" class="lens"/>
+  <path d="M300,194 Q320,220 300,246 Q280,220 300,194 Z" class="lens"/>
+  <text x="284" y="266" class="ts" text-anchor="middle">场镜 f</text>
+
+  <!-- 会聚到束腰 (560,220) -->
+  <line x1="264" y1="200" x2="560" y2="217" stroke="#ef5350" stroke-width="2"/>
+  <line x1="264" y1="240" x2="560" y2="223" stroke="#ef5350" stroke-width="2"/>
+
+  <!-- 发散（虚线，限制在面板内） -->
+  <line x1="560" y1="220" x2="860" y2="292" stroke="#ef5350" stroke-width="1.4" stroke-dasharray="5,4" opacity="0.55"/>
+  <line x1="560" y1="220" x2="860" y2="148" stroke="#ef5350" stroke-width="1.4" stroke-dasharray="5,4" opacity="0.55"/>
+
+  <!-- 焦斑 -->
+  <ellipse cx="560" cy="220" rx="4" ry="9" fill="#d32f2f"/>
+  <line x1="560" y1="229" x2="560" y2="258" stroke="#d32f2f" stroke-width="1.2"/>
+  <text x="470" y="274" class="ts" fill="#d32f2f" font-weight="700">焦斑 d（示意，非等比）</text>
+
+  <!-- 公式框（右上，避开光路） -->
+  <rect x="806" y="66" width="272" height="88" rx="6" class="ok"/>
+  <text x="824" y="90" class="cap" font-weight="700" fill="#2e7d32">光斑公式（厂商标称口径）</text>
+  <text x="824" y="118" style="font-size:15px;font-weight:700;fill:#212121">d = 1.83 · λ · f · M² / D</text>
+  <text x="824" y="140" class="ts" fill="#c62828">⚠️ 另一式 4λfM²/πD 差 43.7%，不可混用</text>
+
+  <!-- ================= ② 焦深 ================= -->
+  <rect x="24" y="316" width="1072" height="336" rx="8" fill="#fffdf5" stroke="#ffe082" stroke-width="1.5"/>
+  <text x="44" y="340" class="tb" fill="#b26a00">② 焦深（DOF）：焦斑附近"还够清楚"的轴向范围</text>
+
+  <line x1="50" y1="520" x2="1070" y2="520" class="axis"/>
+  <text x="50" y="536" class="ts">光轴</text>
+
+  <!-- 高斯光束包络（腰在 (560,490)） -->
+  <path d="M50,520 Q300,495 560,490" fill="none" stroke="#ef5350" stroke-width="2"/>
+  <path d="M50,520 Q300,565 560,570" fill="none" stroke="#ef5350" stroke-width="2"/>
+  <path d="M560,490 Q820,500 1040,520" fill="none" stroke="#ef5350" stroke-width="2"/>
+  <path d="M560,570 Q820,560 1040,520" fill="none" stroke="#ef5350" stroke-width="2"/>
+  <path d="M50,520 Q300,495 560,490 Q820,500 1040,520 Q820,560 560,570 Q300,565 50,520 Z"
+        fill="#ef5350" opacity="0.09" stroke="none"/>
+
+  <!-- 束腰 -->
+  <circle cx="560" cy="490" r="5" fill="#d32f2f"/>
+  <line x1="560" y1="392" x2="560" y2="600" stroke="#d32f2f" stroke-width="1.6" stroke-dasharray="5,4"/>
+  <text x="566" y="618" class="ts" fill="#d32f2f" font-weight="700">束腰 w₀（焦斑【半径】）</text>
+
+  <!-- 焦深区间 -->
+  <rect x="430" y="392" width="260" height="204" rx="6" fill="#c8e6c9" opacity="0.40" stroke="#388e3c" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <line x1="430" y1="386" x2="430" y2="604" stroke="#388e3c" stroke-width="1.5"/>
+  <line x1="690" y1="386" x2="690" y2="604" stroke="#388e3c" stroke-width="1.5"/>
+  <text x="560" y="382" class="cap" text-anchor="middle" font-weight="700" fill="#2e7d32">焦深 DOF ≈ 2 · z_R</text>
+
+  <!-- 公式 -->
+  <rect x="52" y="366" width="300" height="76" rx="6" class="warn"/>
+  <text x="68" y="392" style="font-size:13px;font-weight:700;fill:#b26a00">DOF = 8·λ·M²·(f/D)² / π</text>
+  <text x="68" y="414" class="cap" fill="#b26a00">焦深 ∝ (f/D)²</text>
+  <text x="68" y="432" class="cap" fill="#b26a00">← 平方关系，极度敏感</text>
+
+  <!-- 说明框：放在光束发散范围之外（x≥846 处包络最高 470） -->
+  <rect x="846" y="366" width="232" height="272" rx="6" class="gray"/>
+  <text x="862" y="390" class="cap" font-weight="700">这个平方关系意味着</text>
+  <text x="862" y="416" class="cap">把 D 翻倍</text>
+  <text x="862" y="436" class="cap">（光斑细一倍）</text>
+  <text x="862" y="460" class="cap" fill="#c62828" font-weight="700">→ 焦深只剩 1/4</text>
+  <line x1="862" y1="476" x2="1062" y2="476" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="862" y="498" class="cap">f=254、D=10 mm</text>
+  <text x="862" y="518" class="cap" font-weight="700">焦深 1.46 mm</text>
+  <text x="862" y="540" class="cap">f=254、D=20 mm</text>
+  <text x="862" y="560" class="cap" font-weight="700">焦深 0.37 mm</text>
+  <line x1="862" y1="576" x2="1062" y2="576" stroke="#e0e0e0" stroke-width="1"/>
+  <text x="862" y="598" class="cap" font-weight="700">焦深必须 ≥ 工艺容差</text>
+  <text x="862" y="618" class="cap">工件平面度 + 装夹</text>
+  <text x="862" y="634" class="cap">+ 热漂移 + 场曲残余</text>
+
+  <text x="24" y="678" class="ts">依据：RP Photonics（瑞利长度 / DOF）、Thorlabs F-Theta 教程。光束与焦斑尺寸为示意，非等比。</text>
+  <text x="24" y="694" class="ts">光斑系数 1.83 的来历与两种口径之别，见 05-光学篇/13-光斑尺寸与焦深计算。</text>
+</svg>

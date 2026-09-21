@@ -55,6 +55,8 @@ flowchart LR
 
 ### 1.2 与"变焦派 5 轴"的根本差别
 
+![[光学-precSYS五轴入射角.svg]]
+
 > [!danger] 两支的"5 轴"除了名字几乎无共同点
 > | | **precSYS（本篇）** | RAYLASE AM-MODULE III 类 |
 > |---|---|---|

@@ -1,0 +1,147 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 700" width="1120" height="700" font-family="'Segoe UI','Microsoft YaHei',sans-serif">
+  <defs>
+    <marker id="p1" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="#d32f2f"/>
+    </marker>
+    <style>
+      .t   { font-size:13px; fill:#212121; }
+      .tb  { font-size:14px; font-weight:700; fill:#212121; }
+      .ts  { font-size:11px; fill:#616161; }
+      .cap { font-size:12px; fill:#424242; }
+      .axis{ stroke:#9e9e9e; stroke-width:1; stroke-dasharray:6,5; }
+      .mir { stroke:#1565c0; stroke-width:3.5; stroke-linecap:round; }
+      .ok  { fill:#e8f5e9; stroke:#388e3c; stroke-width:1.5; }
+      .warn{ fill:#fff8e1; stroke:#f9a825; stroke-width:1.5; }
+      .blue{ fill:#e3f2fd; stroke:#1976d2; stroke-width:1.5; }
+    </style>
+  </defs>
+
+  <text x="560" y="26" style="font-size:19px;font-weight:700;fill:#212121;text-anchor:middle">precSYS 五轴：用【入射角】决定孔的形状</text>
+  <text x="560" y="46" style="font-size:12px;fill:#616161;text-anchor:middle">5 个轴 = x, y, z 焦点三维定位 + a, b 入射角　｜　纯振镜式，无旋转光学件，环切 ≤650 Hz（39 000 rpm）</text>
+
+  <!-- ============ 三个孔型对比 ============ -->
+  <!-- ① AOI = 0 -->
+  <rect x="24" y="64" width="344" height="330" rx="8" fill="#f7fff9" stroke="#c8e6c9" stroke-width="1.5"/>
+  <text x="44" y="88" class="tb" fill="#2e7d32">AOI = 0°　零锥度直壁</text>
+
+  <!-- 工件 -->
+  <rect x="60" y="150" width="220" height="180" fill="#eceff1" stroke="#90a4ae" stroke-width="1.5"/>
+  <text x="170" y="352" class="cap" text-anchor="middle">工件截面</text>
+
+  <!-- 孔（直壁） -->
+  <rect x="150" y="150" width="40" height="180" fill="#ffffff" stroke="#2e7d32" stroke-width="2"/>
+  <line x1="150" y1="150" x2="150" y2="330" stroke="#2e7d32" stroke-width="3"/>
+  <line x1="190" y1="150" x2="190" y2="330" stroke="#2e7d32" stroke-width="3"/>
+
+  <!-- 光束（垂直） -->
+  <line x1="170" y1="110" x2="170" y2="150" stroke="#d32f2f" stroke-width="2.5" marker-end="url(#p1)"/>
+  <line x1="150" y1="140" x2="170" y2="150" stroke="#d32f2f" stroke-width="1.2" opacity="0.6"/>
+  <text x="120" y="126" class="ts" fill="#d32f2f">垂直入射</text>
+
+  <!-- 镜面示意 -->
+  <line x1="80" y1="126" x2="120" y2="96" class="mir"/>
+  <text x="60" y="112" class="ts" fill="#1565c0">振镜</text>
+
+  <text x="290" y="200" class="cap" fill="#2e7d32" font-weight="700">II 形</text>
+  <text x="290" y="220" class="ts" fill="#2e7d32">壁面平行</text>
+
+  <!-- ② AOI > 0 -->
+  <rect x="388" y="64" width="344" height="330" rx="8" fill="#fffdf5" stroke="#ffe082" stroke-width="1.5"/>
+  <text x="408" y="88" class="tb" fill="#b26a00">AOI &gt; 0°　正锥孔</text>
+
+  <rect x="424" y="150" width="220" height="180" fill="#eceff1" stroke="#90a4ae" stroke-width="1.5"/>
+  <text x="534" y="352" class="cap" text-anchor="middle">工件截面</text>
+
+  <!-- 正锥孔（上宽下窄） -->
+  <path d="M494,150 L454,330 L614,330 L574,150 Z" fill="#ffffff" stroke="#b26a00" stroke-width="2"/>
+  <line x1="494" y1="150" x2="454" y2="330" stroke="#b26a00" stroke-width="3"/>
+  <line x1="574" y1="150" x2="614" y2="330" stroke="#b26a00" stroke-width="3"/>
+
+  <!-- 倾斜光束 -->
+  <line x1="534" y1="110" x2="494" y2="150" stroke="#d32f2f" stroke-width="2.5" marker-end="url(#p1)"/>
+  <line x1="534" y1="110" x2="574" y2="150" stroke="#d32f2f" stroke-width="2.5" marker-end="url(#p1)"/>
+  <text x="556" y="126" class="ts" fill="#d32f2f">光束向外倾</text>
+
+  <!-- AOI 弧 -->
+  <path d="M534,150 A26,26 0 0 1 510,132" fill="none" stroke="#b26a00" stroke-width="1.5"/>
+  <text x="504" y="140" class="ts" fill="#b26a00" font-weight="700">α</text>
+
+  <!-- 喷嘴示意 -->
+  <rect x="500" y="86" width="68" height="24" rx="4" fill="#cfd8dc" stroke="#607d8b" stroke-width="1.5"/>
+  <text x="534" y="102" class="ts" text-anchor="middle">加工气喷嘴</text>
+
+  <text x="654" y="200" class="cap" fill="#b26a00" font-weight="700">V 形</text>
+  <text x="654" y="220" class="ts" fill="#b26a00">入口大、出口小</text>
+
+  <!-- ③ AOI < 0 -->
+  <rect x="752" y="64" width="344" height="330" rx="8" fill="#fafcff" stroke="#bbdefb" stroke-width="1.5"/>
+  <text x="772" y="88" class="tb" fill="#1565c0">AOI &lt; 0°　倒锥孔</text>
+
+  <rect x="788" y="150" width="220" height="180" fill="#eceff1" stroke="#90a4ae" stroke-width="1.5"/>
+  <text x="898" y="352" class="cap" text-anchor="middle">工件截面</text>
+
+  <!-- 倒锥孔（上窄下宽） -->
+  <path d="M878,150 L918,330 L778,330 L818,150 Z" fill="#ffffff" stroke="#1565c0" stroke-width="2"/>
+  <line x1="818" y1="150" x2="778" y2="330" stroke="#1565c0" stroke-width="3"/>
+  <line x1="878" y1="150" x2="918" y2="330" stroke="#1565c0" stroke-width="3"/>
+
+  <!-- 倾斜光束（向内倾） -->
+  <line x1="878" y1="110" x2="918" y2="150" stroke="#d32f2f" stroke-width="2.5" marker-end="url(#p1)"/>
+  <line x1="818" y1="110" x2="778" y2="150" stroke="#d32f2f" stroke-width="2.5" marker-end="url(#p1)"/>
+  <text x="800" y="126" class="ts" fill="#d32f2f">光束向内倾</text>
+
+  <path d="M818,150 A26,26 0 0 0 842,132" fill="none" stroke="#1565c0" stroke-width="1.5"/>
+  <text x="846" y="140" class="ts" fill="#1565c0" font-weight="700">α</text>
+
+  <rect x="864" y="86" width="68" height="24" rx="4" fill="#cfd8dc" stroke="#607d8b" stroke-width="1.5"/>
+  <text x="898" y="102" class="ts" text-anchor="middle">加工气喷嘴</text>
+
+  <text x="1018" y="200" class="cap" fill="#1565c0" font-weight="700">L 形</text>
+  <text x="1018" y="220" class="ts" fill="#1565c0">入口小、出口大</text>
+
+  <!-- ============ 下半：进动 vs 环切 ============ -->
+  <rect x="24" y="410" width="1072" height="272" rx="8" fill="#fafafa" stroke="#bdbdbd" stroke-width="1.5"/>
+  <text x="44" y="436" class="tb">进动钻孔 vs 普通环切：区别在"光束是否同时倾斜"</text>
+
+  <!-- 进动 -->
+  <text x="120" y="474" class="cap" font-weight="700" fill="#2e7d32" text-anchor="middle">进动（precession）</text>
+  <ellipse cx="120" cy="580" rx="72" ry="34" fill="none" stroke="#2e7d32" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <circle cx="120" cy="580" r="7" fill="#2e7d32"/>
+  <path d="M120,580 m-50,-22 a50,26 0 1,1 100,0" fill="none" stroke="#2e7d32" stroke-width="2" marker-end="url(#p1)"/>
+  <text x="120" y="636" class="ts" fill="#2e7d32" text-anchor="middle">螺旋移动 + 同时倾斜</text>
+  <text x="120" y="654" class="ts" fill="#2e7d32" text-anchor="middle">→ 入口边缘消除焦散</text>
+  <text x="120" y="672" class="ts" fill="#2e7d32" text-anchor="middle">→ 可做垂直壁深孔</text>
+
+  <!-- 环切 -->
+  <text x="352" y="474" class="cap" font-weight="700" fill="#78909c" text-anchor="middle">普通环切（trepanning）</text>
+  <ellipse cx="352" cy="580" rx="72" ry="34" fill="none" stroke="#78909c" stroke-width="1.5" stroke-dasharray="5,4"/>
+  <circle cx="352" cy="580" r="7" fill="#78909c"/>
+  <path d="M352,580 m-50,-22 a50,26 0 1,1 100,0" fill="none" stroke="#78909c" stroke-width="2" marker-end="url(#p1)"/>
+  <text x="352" y="636" class="ts" fill="#78909c" text-anchor="middle">光束始终垂直</text>
+  <text x="352" y="654" class="ts" fill="#78909c" text-anchor="middle">→ 入口有焦散、毛刺</text>
+  <text x="352" y="672" class="ts" fill="#78909c" text-anchor="middle">→ 锥度靠偏移焦点做</text>
+
+  <!-- 规格 -->
+  <rect x="470" y="462" width="290" height="196" rx="6" class="blue"/>
+  <text x="486" y="486" class="cap" font-weight="700" fill="#1565c0">precSYS 规格（数据手册）</text>
+  <text x="486" y="512" class="cap">x, y 定位分辨率　<tspan font-weight="700">17 nm</tspan></text>
+  <text x="486" y="534" class="cap">z 焦程 / 速度　<tspan font-weight="700">±1.0 mm / 10 mm/s</tspan></text>
+  <text x="486" y="556" class="cap">a, b 最大 AOI　<tspan font-weight="700">±7.5°</tspan></text>
+  <text x="486" y="578" class="cap">入射角分辨率　<tspan font-weight="700">2 µrad</tspan></text>
+  <text x="486" y="600" class="cap">环切 / 进动频率　<tspan font-weight="700">≤650 Hz</tspan></text>
+  <text x="486" y="622" class="cap">幅面　<tspan font-weight="700">Ø2.5 mm</tspan>（打标 Ø5 mm）</text>
+  <text x="486" y="644" class="cap">物镜 f　<tspan font-weight="700">75 mm</tspan>（无 F-θ 场镜）</text>
+
+  <!-- 光路 -->
+  <rect x="784" y="462" width="296" height="196" rx="6" class="warn"/>
+  <text x="800" y="486" class="cap" font-weight="700" fill="#b26a00">光路（与场镜架构完全不同）</text>
+  <text x="800" y="512" class="ts">激光器 → 光束调理[扩束0.25–4×</text>
+  <text x="800" y="530" class="ts">　　　　+ 位置调节 x,y,角度 + λ/2 + λ/4]</text>
+  <text x="800" y="552" class="ts">→ 五轴扫描单元(x,y,z,a,b)</text>
+  <text x="800" y="574" class="ts">→ 分束镜 → 物镜(f=75mm)</text>
+  <text x="800" y="596" class="ts">→ 保护玻璃 → 加工气喷嘴 → 工件</text>
+  <text x="800" y="620" class="ts" fill="#1565c0">分束镜旁路 → 光束位置测量</text>
+  <text x="800" y="638" class="ts" fill="#1565c0">　（自动精细调节：用 5 个振镜轴回零）</text>
+
+  <text x="24" y="696" class="ts">依据：SCANLAB precSYS 数据手册（02/2026）× 产品页。孔型与光路为示意，尺寸非等比。</text>
+</svg>
