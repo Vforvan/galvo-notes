@@ -1,0 +1,1305 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>项目导读 · 五轴振镜 5D 补偿</title>
+<style>
+  :root{
+    --bg:#f6f5f1; --card:#ffffff; --ink:#1f2328; --ink2:#5b6371; --ink3:#8b93a1;
+    --line:#e3e1db; --blue:#2f6fd0; --blue-bg:#eef4fd;
+    --red:#c8442f; --red-bg:#fdf0ed;
+    --green:#1f8a5f; --green-bg:#eaf7f1;
+    --amber:#b07408; --amber-bg:#fdf6e6;
+    --mono:"Cascadia Mono",Consolas,"SF Mono",Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{display:flex; max-width:1240px; margin:0 auto; gap:32px; padding:0 24px 80px}
+
+  /* ---------- 侧栏导航 ---------- */
+  nav{
+    position:sticky; top:0; align-self:flex-start; flex:0 0 210px;
+    max-height:100vh; overflow-y:auto; padding:32px 0 32px;
+  }
+  nav .brand{font-size:13px; font-weight:700; color:var(--ink3); letter-spacing:.08em; margin-bottom:14px}
+  nav a{
+    display:block; padding:7px 12px; margin:2px 0; border-radius:7px;
+    color:var(--ink2); text-decoration:none; font-size:14px; border-left:2px solid transparent;
+  }
+  nav a:hover{background:#ecebe6; color:var(--ink)}
+  nav a.on{background:var(--blue-bg); color:var(--blue); border-left-color:var(--blue); font-weight:600}
+  nav .sub{padding-left:24px; font-size:13px}
+
+  /* ---------- 头部 ---------- */
+  header{padding:44px 0 8px}
+  header h1{margin:0 0 10px; font-size:31px; line-height:1.3; letter-spacing:-.01em}
+  header .lede{color:var(--ink2); font-size:16.5px; max-width:70ch; margin:0}
+  header .meta{margin-top:16px; display:flex; gap:8px; flex-wrap:wrap}
+  .chip{
+    font-size:12.5px; padding:4px 10px; border-radius:99px;
+    background:var(--card); border:1px solid var(--line); color:var(--ink2);
+  }
+
+  /* ---------- 章节 ---------- */
+  section{margin-top:52px; scroll-margin-top:20px}
+  h2{
+    font-size:23px; margin:0 0 6px; letter-spacing:-.01em;
+    display:flex; align-items:center; gap:10px;
+  }
+  h2 .n{
+    flex:0 0 auto; width:29px; height:29px; border-radius:8px; background:var(--ink); color:#fff;
+    font-size:14px; display:grid; place-items:center; font-weight:700;
+  }
+  h3{font-size:17.5px; margin:30px 0 8px}
+  h4{font-size:15.5px; margin:20px 0 6px; color:var(--ink2)}
+  p{margin:10px 0}
+  .hint{color:var(--ink2); font-size:14.5px; margin:2px 0 18px}
+  code{font-family:var(--mono); font-size:.9em; background:#ecebe6; padding:1.5px 5px; border-radius:4px}
+  b,strong{font-weight:650}
+  .k{color:var(--blue); font-weight:650}
+  hr{border:0; border-top:1px solid var(--line); margin:34px 0}
+
+  /* ---------- 卡片 ---------- */
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:12px;
+    padding:20px 22px; margin:16px 0;
+  }
+  .card.tight{padding:15px 18px}
+  .callout{border-left:3px solid var(--blue); background:var(--blue-bg); border-radius:0 10px 10px 0; padding:14px 18px; margin:16px 0}
+  .callout.red{border-color:var(--red); background:var(--red-bg)}
+  .callout.green{border-color:var(--green); background:var(--green-bg)}
+  .callout.amber{border-color:var(--amber); background:var(--amber-bg)}
+  .callout .t{font-weight:700; font-size:14px; margin-bottom:4px}
+  .callout p{margin:4px 0}
+
+  /* ---------- 表格 ---------- */
+  table{width:100%; border-collapse:collapse; margin:14px 0; font-size:14.5px}
+  th,td{text-align:left; padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:top}
+  th{font-size:13px; color:var(--ink3); font-weight:650; text-transform:uppercase; letter-spacing:.04em}
+  tbody tr:hover{background:#faf9f6}
+  td.num{font-family:var(--mono); font-size:13.5px; white-space:nowrap}
+  .good{color:var(--green); font-weight:650}
+  .bad{color:var(--red); font-weight:650}
+
+  /* ---------- 代码块 ---------- */
+  pre{
+    background:#23262d; color:#e6e8ec; padding:15px 18px; border-radius:10px;
+    overflow-x:auto; font-family:var(--mono); font-size:13px; line-height:1.68; margin:14px 0;
+  }
+  pre .c{color:#8b94a3}      /* 注释 */
+  pre .f{color:#7db3ff}      /* 函数 */
+  pre .v{color:#ffd479}      /* 变量/值 */
+  pre .e{color:#ff9c8a}      /* 错误 */
+  pre .k{color:#c792ea}      /* 关键字 */
+  pre .s{color:#a5d6a7}      /* 字符串 */
+
+  /* ---------- 文件树 ---------- */
+  .tree{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:18px 22px; overflow-x:auto}
+  .tree pre{background:none; color:var(--ink); padding:0; margin:0; font-size:13.5px}
+  .tree .star{color:var(--amber); font-weight:700}
+  .tree .cm{color:var(--ink3)}
+
+  /* ---------- 阅读顺序 ---------- */
+  .steps{counter-reset:s; margin:16px 0}
+  .step{
+    display:flex; gap:14px; padding:13px 16px; background:var(--card);
+    border:1px solid var(--line); border-radius:10px; margin:8px 0; align-items:flex-start;
+  }
+  .step .dot{
+    counter-increment:s; flex:0 0 auto; width:25px; height:25px; border-radius:50%;
+    background:var(--blue); color:#fff; display:grid; place-items:center;
+    font-size:12.5px; font-weight:700; margin-top:2px;
+  }
+  .step .dot::before{content:counter(s)}
+  .step .b{flex:1}
+  .step .fn{font-family:var(--mono); font-size:13.5px; font-weight:650; color:var(--blue)}
+  .step .why{font-size:14px; color:var(--ink2); margin-top:2px}
+  .step .lines{font-size:12.5px; color:var(--ink3); font-family:var(--mono)}
+
+  /* ---------- 流程条 ---------- */
+  .flow{display:flex; flex-direction:column; gap:0; margin:18px 0}
+  .fnode{
+    background:var(--card); border:1px solid var(--line); border-left:3px solid var(--blue);
+    border-radius:0 10px 10px 0; padding:12px 16px;
+  }
+  .fnode .h{font-weight:650; font-size:14.5px}
+  .fnode .d{font-size:13.5px; color:var(--ink2); margin-top:3px}
+  .fnode .d code{font-size:12.5px}
+  .arrow{text-align:center; color:var(--ink3); font-size:15px; line-height:1; padding:5px 0}
+  .fnode.red{border-left-color:var(--red)}
+  .fnode.green{border-left-color:var(--green)}
+  .fnode.amber{border-left-color:var(--amber)}
+
+  .two{display:grid; grid-template-columns:1fr 1fr; gap:16px}
+  @media(max-width:900px){ .two{grid-template-columns:1fr} }
+
+  /* ---------- 交互：工作域 ---------- */
+  .lab{background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px 22px; margin:16px 0}
+  .lab .ctl{display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin:10px 0 4px}
+  .lab input[type=range]{flex:1; min-width:220px; accent-color:var(--blue)}
+  .lab .val{font-family:var(--mono); font-size:14px; font-weight:650; min-width:78px; text-align:right}
+  .lab svg{width:100%; height:auto; display:block; margin-top:8px}
+  .verdict{margin-top:10px; padding:11px 14px; border-radius:9px; font-size:14.5px; font-weight:600}
+  .verdict.ok{background:var(--green-bg); color:var(--green); border:1px solid #bfe3d3}
+  .verdict.no{background:var(--red-bg); color:var(--red); border:1px solid #f0ccc4}
+
+  /* ---------- QA ---------- */
+  details{background:var(--card); border:1px solid var(--line); border-radius:10px; margin:9px 0; overflow:hidden}
+  details[open]{border-color:#cfd8e6; box-shadow:0 1px 3px rgba(31,35,40,.05)}
+  summary{
+    cursor:pointer; padding:13px 18px; font-weight:600; font-size:15px;
+    list-style:none; display:flex; gap:10px; align-items:flex-start;
+  }
+  summary::-webkit-details-marker{display:none}
+  summary::before{content:"Q"; flex:0 0 auto; width:21px; height:21px; border-radius:5px; background:var(--ink); color:#fff; font-size:11.5px; display:grid; place-items:center; font-weight:700; margin-top:2px}
+  details .a{padding:0 18px 16px 49px; color:var(--ink2); font-size:14.8px}
+  details .a p:first-child{margin-top:0}
+  details .a strong{color:var(--ink)}
+
+  /* ---------- 误区 ---------- */
+  .myth{display:grid; grid-template-columns:1fr 1fr; gap:0; border:1px solid var(--line); border-radius:11px; overflow:hidden; margin:12px 0}
+  @media(max-width:760px){ .myth{grid-template-columns:1fr} }
+  .myth>div{padding:14px 17px}
+  .myth .wrong{background:var(--red-bg)}
+  .myth .right{background:var(--green-bg); border-left:1px solid var(--line)}
+  .myth .lbl{font-size:11.5px; font-weight:700; letter-spacing:.06em; margin-bottom:5px}
+  .myth .wrong .lbl{color:var(--red)}
+  .myth .right .lbl{color:var(--green)}
+  .myth p{margin:0; font-size:14.3px}
+
+  footer{margin-top:60px; padding-top:22px; border-top:1px solid var(--line); color:var(--ink3); font-size:13.5px}
+  @media(max-width:900px){
+    nav{display:none}
+    .wrap{padding:0 18px 60px}
+    header h1{font-size:25px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav id="nav">
+  <div class="brand">项目导读</div>
+  <a href="#s0">0 · 一句话说清</a>
+  <a href="#s1">1 · 到底在解决什么</a>
+  <a href="#s2">2 · 代码怎么读</a>
+  <a href="#s3">3 · 数据怎么流</a>
+  <a class="sub" href="#s3a">↳ 正向：指令→位姿</a>
+  <a class="sub" href="#s3b">↳ 逆向：位姿→指令</a>
+  <a href="#s4">4 · 补偿矩阵怎么生成</a>
+  <a href="#s5">5 · 实测数字</a>
+  <a href="#s6">6 · 动手试一下</a>
+  <a href="#s7">7 · 五个误区</a>
+  <a href="#s8">8 · 可能被追问</a>
+</nav>
+
+<main style="flex:1; min-width:0">
+
+<header>
+  <h1>五轴振镜 5D 补偿 —— 项目导读</h1>
+  <p class="lede">
+    这份导读是给<strong>要把它看懂的人</strong>写的。按 0→8 顺序读，大约 25 分钟；
+    只想抓重点就读 0、1、4、7 四节。
+  </p>
+  <div class="meta">
+    <span class="chip">Python 3.12 · FastAPI · SciPy</span>
+    <span class="chip">9 个源文件 · 约 1200 行</span>
+    <span class="chip">12 项测试全通过</span>
+    <span class="chip">完全离线可读</span>
+  </div>
+</header>
+
+<!-- ================= 0 ================= -->
+<section id="s0">
+  <h2><span class="n">0</span>一句话说清</h2>
+  <p class="hint">如果只能记住一段，记这段。它能应付大部分追问。</p>
+
+  <div class="callout">
+    <div class="t">核心一句话</div>
+    <p>
+      这个项目把「五轴振镜的<strong>指令</strong> <code>q</code>」到「光束的<strong>实际落点姿态</strong> <code>T</code>」之间的映射做成了数字孪生。
+      因为真机存在装配误差，<strong>同一条指令真机走不到理想位置</strong>；于是先用理想机和真机跑 400 组对照数据，
+      拟合出一个 <strong>21×5 的二阶多项式误差模型</strong>，再把目标位置反向修正一次 ——
+      位置误差从 <span class="bad">64.9 μm</span> 降到 <span class="good">0.002 μm</span>。
+    </p>
+  </div>
+
+  <div class="two">
+    <div class="card tight">
+      <h4 style="margin-top:0">两个 5 维向量</h4>
+      <pre style="margin:8px 0 0"><span class="v">q</span> = [q1, q2, q3, q4, qf]   <span class="c"># 我下发的指令</span>
+     └─ 4 个镜子的转角(rad) ─┘ └ 光程(m)
+
+<span class="v">T</span> = [X, Y, Z, α, β]        <span class="c"># 光束实际打到哪</span>
+     └─ 焦点位置(m) ─┘ └ 倾角(rad)</pre>
+    </div>
+    <div class="card tight">
+      <h4 style="margin-top:0">为什么叫「5D」</h4>
+      <p style="font-size:14.3px; margin:8px 0 0">
+        因为有 <strong>5 个输入</strong>（4 个转角 + 1 个光程）和 <strong>5 个输出</strong>
+        （3 个位置 + 2 个角度），不是 5 个轴。补偿要同时管住这 5 个分量，
+        让它们<strong>一起</strong>对准目标。
+      </p>
+    </div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 1 ================= -->
+<section id="s1">
+  <h2><span class="n">1</span>到底在解决什么问题</h2>
+  <p class="hint">不先想清楚这个，后面所有代码都像在无病呻吟。</p>
+
+  <h3>理想情况 vs 真实情况</h3>
+  <p>
+    假设你告诉振镜「转角 0.008 rad」。如果镜子的位置、转轴、零位都完美，
+    光会精确落在某个点。但真机上：
+  </p>
+  <div class="card">
+    <table>
+      <thead><tr><th>误差来源</th><th>物理含义</th><th>本项目取值</th></tr></thead>
+      <tbody>
+        <tr><td><code>position_offsets</code></td><td>镜子装偏了，不是理论位置</td><td class="num">N(0, 20 μm)</td></tr>
+        <tr><td><code>axis_tilts</code></td><td>转轴歪了</td><td class="num">N(0, 100 μrad)</td></tr>
+        <tr><td><code>zero_offsets</code></td><td>零位标定不准</td><td class="num">N(0, 50 μrad)</td></tr>
+        <tr><td><code>focal_scale/offset</code></td><td>焦距有比例/偏置误差</td><td class="num">1.0002 / 20 μm</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout red">
+    <div class="t">后果：同一指令，两台机器走出两个位置</div>
+    <p>
+      实测指令 <code>q=[0.008, −0.008, 0.001, 0.0005, 0.0748]</code>：
+      理想机落点 <code>[10314.09, 2308.85, 1140.12] μm</code>，
+      真机落点 <code>[10365.85, 2298.17, 1102.72] μm</code>。
+    </p>
+    <p>
+      位置差了 <span class="bad">64.74 μm</span>，姿态差了 <span class="bad">232.02 μrad</span>。
+      对一个理论分辨率 20 nm 的设备，这个偏差大了三个数量级，<strong>必须补偿</strong>。
+    </p>
+  </div>
+
+  <h3>补偿的思路：把目标「反向挪一下」</h3>
+  <p>
+    既然「下发 q → 真机落到 A，而我想去 B」，那就不要下发 q，改下发一条<strong>修正过的指令</strong> q′，
+    使得真机执行 q′ 之后正好落在 B。
+  </p>
+  <div class="flow">
+    <div class="fnode"><div class="h">① 目标 B</div><div class="d">我想要光束落在 B 点</div></div>
+    <div class="arrow">▼</div>
+    <div class="fnode amber"><div class="h">② 问误差模型：如果真机走在 B，它会偏多少？</div><div class="d">用拟合出的多项式预测偏差 <code>Δ = f(B)</code></div></div>
+    <div class="arrow">▼</div>
+    <div class="fnode amber"><div class="h">③ 那就把理想机的目标挪到 B − Δ</div><div class="d">让真机从「偏后的位置」正好偏回 B</div></div>
+    <div class="arrow">▼</div>
+    <div class="fnode green"><div class="h">④ 逆解出指令 q′ 并下发</div><div class="d">真机执行 q′，落点回到 B，误差被抵消</div></div>
+  </div>
+  <p class="hint">
+    注意第 ② 步是个<strong>不动点问题</strong>：偏差 Δ 依赖于「理想机到哪」，而理想机到哪又取决于 Δ。
+    所以代码里用 3 次迭代收敛（见第 4 节）。
+  </p>
+</section>
+
+<hr>
+
+<!-- ================= 2 ================= -->
+<section id="s2">
+  <h2><span class="n">2</span>代码怎么读：推荐顺序</h2>
+  <p class="hint">不要从 <code>api.py</code> 开始，也不要从 <code>model.py</code> 开始 —— 会迷路。按下面顺序，从最容易的垫脚石往上走。</p>
+
+  <div class="steps">
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">geometry.py <span class="lines">· 72 行</span></div>
+        <div class="why">
+          只有 4 个纯数学函数：<code>rotate</code> 绕轴旋转、<code>intersect_ray_plane</code> 光线与平面求交、
+          <code>reflect</code> 镜面反射、<code>direction_to_angles</code> 方向转角度。
+          <strong>先建立「光是怎么走的」这个直觉。</strong>
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">specifications.py <span class="lines">· 58 行</span></div>
+        <div class="why">
+          一张 515 nm 规格常量表，没有逻辑。扫一眼知道有哪些参数即可，
+          后面到处引用的 <code>STANDARD_515_NM</code> 就是它。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">model.py → 只看 forward() <span class="lines">· 第 136-185 行</span></div>
+        <div class="why">
+          <strong>全项目的心脏。</strong>它把「指令 q」变成「光束位姿 T」。
+          逐级遍历 4 面镜子：加误差 → 算镜面法向 → 求交点 → 反射。
+          其余方法（<code>lower_bounds</code>、<code>is_pose_within_workspace</code>）先略过。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">calibration.py <span class="lines">· 73 行</span></div>
+        <div class="why">
+          很短，讲清一件事：<strong>随机撒指令，同时喂给理想机和真机，收集位姿差</strong>。
+          难点只有一个 —— 要过滤掉无效样本（打不到镜子、超出工作域）。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">compensation.py <span class="lines">· 78 行</span></div>
+        <div class="why">
+          <strong>项目标题里的「补偿矩阵」就在这。</strong>
+          核心是 <code>fit()</code> 里一行 <code>np.linalg.lstsq</code>，
+          和 <code>corrected_target()</code> 里那个 3 次迭代。配合第 4 节读。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">kinematics.py <span class="lines">· 115 行</span></div>
+        <div class="why">
+          反向问题：给定想要的位姿，反推指令。用 <code>scipy</code> 的
+          <code>least_squares</code> 做有界非线性求解。到这里你已经知道正向了，看逆向会顺很多。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">verification.py + optics.py <span class="lines">· 65 + 95 行</span></div>
+        <div class="why">
+          <code>verification</code> 算补偿前后的 RMSE（第 5 节的数字就从这来）；
+          <code>optics</code> 是高斯光束等效物镜，算焦斑和包络，<strong>与补偿主线相对独立</strong>，可以最后看。
+        </div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="dot"></div>
+      <div class="b">
+        <div class="fn">api.py + static/ <span class="lines">· 218 行 + 前端</span></div>
+        <div class="why">
+          最后看。它只是把上面这些能力包成 HTTP 接口给网页用，逻辑前面都见过了。
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>文件全貌</h3>
+  <div class="tree">
+<pre>05-五轴与补偿篇/代码/    ← 本子项目根目录
+├── <b>启动网页.bat</b>              <span class="cm">一键启动</span>
+├── pyproject.toml              <span class="cm">依赖 + 入口点</span>
+├── src/five_axis_galvo/
+│   ├── specifications.py       <span class="cm">515 nm 规格常量表</span>
+│   ├── geometry.py             <span class="cm">向量数学：旋转/求交/反射</span>
+│   ├── optics.py               <span class="cm">高斯光束等效物镜</span>
+│   ├── model.py                <span class="star">★ 机器模型 + forward() 正向解算</span>
+│   ├── kinematics.py           <span class="cm">数值雅可比 + 有界逆解</span>
+│   ├── calibration.py          <span class="star">★ 标定样本生成</span>
+│   ├── compensation.py         <span class="star">★ 5D 补偿矩阵（核心）</span>
+│   ├── verification.py         <span class="cm">补偿前后 RMSE</span>
+│   ├── four_plus_one.py        <span class="cm">4+1 前置动态聚焦（当前主页）</span>
+│   ├── api.py / api_4p1.py     <span class="cm">FastAPI 接口</span>
+│   └── static/                 <span class="cm">index_4p1.html + app_4p1.js（Three.js）</span>
+├── tests/                      <span class="cm">契约测试</span>
+├── README.md                   <span class="cm">完整技术文档</span>
+└── 导读.html                    <span class="cm">← 你正在看的这页</span>
+</pre>
+  </div>
+
+  <div class="callout">
+    <div class="t">依赖方向（很重要）</div>
+    <p>
+      三个 ★ 模块构成补偿链路，且<strong>都向下依赖 <code>model.forward()</code></strong>：
+    </p>
+<pre style="margin:10px 0 0"><span class="c">标定</span> calibration ──┐
+                     ├──→ 都调用 <span class="f">forward()</span> 拿真值
+<span class="c">补偿</span> compensation ─┤
+<span class="c">逆解</span> kinematics  ──┘
+                         ↑
+              所以 forward() 是唯一的「真值来源」</pre>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 3 ================= -->
+<section id="s3">
+  <h2><span class="n">3</span>数据怎么流</h2>
+  <p class="hint">这张图看懂，整个项目就通了。两条路：一条正向、一条逆向。</p>
+
+  <h3 id="s3a">正向：指令 → 位姿（<code>model.forward</code>）</h3>
+  <div class="flow">
+    <div class="fnode">
+      <div class="h">输入指令 q[5]</div>
+      <div class="d">4 个转角 + 1 个光程</div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">逐级遍历 M1 → M4，每面镜子做 4 件事</div>
+      <div class="d">
+        <code>center ← 理论位置 + 安装位置偏置</code><br>
+        <code>axis ← 转轴 + 轴倾斜</code>（再归一化）<br>
+        <code>normal ← 绕 axis 旋转 mirror.normal，角度 = q[i] + 零偏</code><br>
+        <code>hit ← 光线与镜面求交</code>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode red">
+      <div class="h">三道几何检查（任一失败就抛 GeometryError）</div>
+      <div class="d">
+        ① 命中点离镜心 &gt; 孔径 5 mm → <code>Ray misses mirror i aperture</code><br>
+        ② 光线与镜面平行 → <code>Ray is parallel to mirror plane</code><br>
+        ③ 交点在光线反方向 → <code>Mirror intersection is behind the ray origin</code>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">反射并前进</div>
+      <div class="d"><code>direction ← reflect(direction, normal)</code>，<code>origin ← hit</code></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">4 面镜子走完，算焦点</div>
+      <div class="d">
+        <code>focus_distance ← q[4] × focal_scale + focal_offset</code><br>
+        <code>focus ← origin + focus_distance × direction</code>
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode green">
+      <div class="h">输出位姿 T[5] = [X, Y, Z, α, β]</div>
+      <div class="d"><code>α = atan2(d.x, −d.z)</code>，<code>β = atan2(d.y, −d.z)</code>；<code>d.z ≥ 0</code> 时抛错（出射光必须朝 −Z）</div>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="t">关键理解：误差是在哪一步注入的？</div>
+    <p>
+      全部注入在<strong>「算镜面法向」之前的准备步骤</strong>里 —— 位置偏置加在镜心、
+      轴倾斜加在转轴、零偏加在转角上。<code>reflect()</code> 和求交本身是纯几何、无误差的。
+    </p>
+    <p>
+      所以<strong>理想机和真机用的是同一份代码</strong>，唯一区别是 <code>errors</code> 字段：
+      理想机全为零，真机填了随机误差。<code>create_default_machine(errors=None)</code> 就是理想机。
+    </p>
+  </div>
+
+  <h3 id="s3b">逆向：位姿 → 指令（<code>kinematics.inverse_kinematics</code>）</h3>
+  <p>给定目标位姿 T，要反推 q。这是非线性问题（镜面旋转与落点不是线性关系），所以用数值优化：</p>
+  <div class="flow">
+    <div class="fnode"><div class="h">目标 T</div></div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">构造残差函数</div>
+      <div class="d">
+        <code>residual(q) = pose_residual(forward(q), T) / 尺度</code><br>
+        角分量做 <code>atan2(sin, cos)</code> 回绕，避免 ±π 跳变；<br>
+        几何失败时返回常数 <code>1e6</code>，把解推回可行域。
+      </div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode amber">
+      <div class="h">scipy.optimize.least_squares 迭代</div>
+      <div class="d"><code>bounds=[lower, upper]</code>，<code>max_nfev=150</code>，<code>xtol/ftol/gtol=1e-12</code></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode green">
+      <div class="h">输出 q′ + success 标志</div>
+      <div class="d"><code>success = 求解器成功 且 位置残差 ≤ tol 且 角度残差 ≤ tol</code></div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <div class="t">为什么这里能解出唯一答案</div>
+    <p>
+      因为标称点处的<strong>雅可比矩阵满秩（秩 = 5）</strong>，奇异值为
+      <code>[2.6994, 2.1889, 1.0007, 0.0504, 0.0429]</code>，全部非零。
+      5 个输入正好能独立控制 5 个输出，不多不少。
+    </p>
+    <p>
+      这也是 <code>tests/test_kinematics.py::test_jacobian_is_full_rank</code> 把守的契约 ——
+      如果改镜面布局把这个秩搞掉了，测试会立刻红。
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 4 ================= -->
+<section id="s4">
+  <h2><span class="n">4</span>「5D 补偿矩阵」是怎么生成的</h2>
+  <p class="hint">这是项目标题的核心，也是最容易被问的地方。建议逐字读完本节。</p>
+
+  <h3>它到底是什么</h3>
+  <div class="callout">
+    <div class="t">先纠正一个常见误解</div>
+    <p>
+      它<strong>不是几何矩阵</strong>，也<strong>不是 5×5</strong>。
+      它是一张 <strong>21×5 的多项式系数表</strong>：
+      输入目标位姿，输出「真机会偏多少」这个 5 维误差向量。
+    </p>
+  </div>
+
+<pre><span class="c"># 模型的数学形式</span>
+x           = (T − center) / scale        <span class="c"># 先把位姿标准化</span>
+features(x) = 21 个基函数                  <span class="c"># 见下</span>
+errors(T)   = features(x) @ C   ∈ R⁵      <span class="c"># C 的形状是 21×5</span>
+              └─ 预测 [ΔX, ΔY, ΔZ, Δα, Δβ]</pre>
+
+  <h4>21 个基函数怎么来的</h4>
+  <p>「二阶多项式」在 5 维输入下展开，项数 = <code>(n+1)(n+2)/2</code>，代入 n=5 得 <strong>21</strong>：</p>
+  <div class="card tight">
+    <table>
+      <thead><tr><th>类别</th><th>项数</th><th>具体</th></tr></thead>
+      <tbody>
+        <tr><td>常数项</td><td class="num">1</td><td class="num">1</td></tr>
+        <tr><td>一次项</td><td class="num">5</td><td class="num">x0, x1, x2, x3, x4</td></tr>
+        <tr><td>二次项</td><td class="num">15</td><td class="num">x0², x0x1, … , x3x4, x4²</td></tr>
+        <tr><td><strong>合计</strong></td><td class="num"><strong>21</strong></td><td class="num">—</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>离线标定：7 步生成</h3>
+  <div class="flow">
+    <div class="fnode">
+      <div class="h">① 随机撒指令</div>
+      <div class="d"><code>q[0:4] ~ U(−2.06°, +2.06°)</code>，<code>q[4] ~ U(0.074, 0.076) m</code></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">② 同一条指令喂给两台机器</div>
+      <div class="d"><code>ideal_pose = ideal.forward(q)</code> ／ <code>real_pose = real.forward(q)</code><br>得到「同一输入下的位姿差」</div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode red">
+      <div class="h">③ 过滤无效样本</div>
+      <div class="d">几何失败 → 丢弃；理想位姿超出工作域 → 丢弃<br><strong>存活率只有约 5.7%</strong>（见第 5 节），所以源码里留了 30 倍尝试次数</div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">④ 组装标定数据 → 相减得到误差标签</div>
+      <div class="d"><code>commands / ideal_poses / real_poses</code> 各 400×5<br><code>errors = real_poses − ideal_poses</code> → 400×5</div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">⑤ 标准化（这一步不能省）</div>
+      <div class="d"><code>center = mean(ideal_poses)</code>，<code>scale = std(ideal_poses)</code>，<code>x = (ideal_poses − center) / scale</code></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode green">
+      <div class="h">⑥ 造特征 + 最小二乘 ← 矩阵在这里诞生</div>
+      <div class="d"><code>A = _quadratic_features(x)</code> → 400×21<br><code>C, *_ = np.linalg.lstsq(A, errors, rcond=None)</code> → <strong>C 是 21×5</strong></div>
+    </div>
+    <div class="arrow">▼</div>
+    <div class="fnode">
+      <div class="h">⑦ 独立验证</div>
+      <div class="d">用 <code>seed+1</code> 的<strong>新采样</strong>命令测补偿前后 RMSE，报告成功/失败数</div>
+    </div>
+  </div>
+
+  <div class="callout amber">
+    <div class="t">先排掉一个最容易踩的坑：标定阶段不做逆解</div>
+    <p>
+      一个很自然的误解是：拿到「有误差位姿」之后，把它丢给理想机做逆解，算出修正后的指令 q′，
+      再去拟合。这条路线<strong>行不通，而且代码里也确实没这么做</strong>。
+    </p>
+    <p>
+      <strong>原因一：拟合模型里根本没有 q。</strong>误差模型学的是
+      <code>理想位姿 → 误差</code>，不是 <code>q → 误差</code>。
+      所以「两个 q 怎么处理」这个问题不存在 —— q 在收集完数据后就退场了。
+    </p>
+    <p>
+      <strong>原因二：逆解不产生误差标签。</strong>误差标签只能来自减法
+      <code>real_pose − ideal_poses</code>。实测把真机位姿丢给逆解，会得到
+      <code>q″ = [0.006473, −0.004419, 0.002506, −0.002142, 0.075239]</code>，
+      而原指令是 <code>[0.006, −0.005, 0.003, −0.002, 0.0752]</code> ——
+      <strong>转一圈只是回到原指令附近</strong>（差 5e-4 量级），手里还是「一条指令」，
+      并没有多出「一个误差向量」。
+    </p>
+    <p>
+      记忆口诀：<strong>离线标定是「正正相减」，在线补偿才用「逆解」。</strong>
+    </p>
+  </div>
+
+  <h3 id="s4d">第 ④⑤⑥ 步详解（含源码）</h3>
+  <p class="hint">这三步是整个补偿矩阵的诞生过程。每一步都给出真实代码和实跑数据。</p>
+
+  <!-- ---------- 第 4 步 ---------- -->
+  <h4>第 ④ 步：组装标定数据 —— 误差标签从哪来</h4>
+  <p>
+    收集阶段得到三样东西：<code>commands</code>（撒出去的 q）、
+    <code>ideal_poses</code>、<code>real_poses</code>。真正进入模型的是后两者的<strong>差</strong>。
+  </p>
+
+  <div class="card">
+    <p style="margin-top:0; font-size:14.5px"><b>源码</b> <code>calibration.py</code> 第 12-22 行</p>
+<pre><span class="c">@dataclass(frozen=True)</span>
+<span class="k">class</span> <span class="f">CalibrationData</span>:
+    commands:    NDArray[np.float64]   <span class="c"># 400 x 5  撒出去的 q（收集完就退场）</span>
+    ideal_poses: NDArray[np.float64]   <span class="c"># 400 x 5  理想机位姿   -> 将来当输入 X</span>
+    real_poses:  NDArray[np.float64]   <span class="c"># 400 x 5  有误差位姿</span>
+
+    <span class="c">@property</span>
+    <span class="k">def</span> <span class="f">errors</span>(self) -&gt; NDArray[np.float64]:        <span class="c"># 400 x 5  -> 将来当标签 y</span>
+        values = self.real_poses - self.ideal_poses
+        <span class="c"># 角分量是周期量，直接相减可能得到 2*pi - eps 这种假大值</span>
+        <span class="c"># 用 arctan2(sin, cos) 把结果绕回 (-pi, pi]</span>
+        values[:, 3:] = np.<span class="f">arctan2</span>(np.<span class="f">sin</span>(values[:, 3:]), np.<span class="f">cos</span>(values[:, 3:]))
+        <span class="k">return</span> values</pre>
+  </div>
+
+  <div class="card tight">
+    <p style="margin-top:0; font-size:14.5px"><b>实跑结果</b>（400 样本，seed=42）</p>
+    <table style="margin-bottom:0">
+      <thead><tr><th>数组</th><th>形状</th><th>第 0 行内容</th></tr></thead>
+      <tbody>
+        <tr><td><code>ideal_poses</code></td><td class="num">400 × 5</td><td class="num" style="white-space:normal">[0.008938, 0.000898, 0.000055, −0.004128, 0.023478]</td></tr>
+        <tr><td><code>real_poses</code></td><td class="num">400 × 5</td><td class="num" style="white-space:normal">[0.008992, 0.000888, 0.000018, −0.003980, 0.023300]</td></tr>
+        <tr><td><code>errors</code></td><td class="num">400 × 5</td><td class="num" style="white-space:normal">[0.000053, −0.000009, −0.000038, 0.000148, −0.000178]</td></tr>
+      </tbody>
+    </table>
+    <p class="hint" style="margin:8px 0 0">
+      第三行就是前两行逐个分量相减的结果（单位：位置 m、角度 rad）。
+      <code>commands</code> 在这里<strong>完全没有参与</strong>。
+    </p>
+  </div>
+
+  <div class="callout">
+    <div class="t">为什么要做角度回绕</div>
+    <p>
+      角度是周期量。<code>0.001 rad</code> 和 <code>0.001 + 2π rad</code> 是同一个姿态，
+      但直接相减会得到 <code>6.28</code> 这么大的「误差」，把训练数据污染掉。
+      <code>arctan2(sin(θ), cos(θ))</code> 是把它折算回 <code>(−π, π]</code> 的标准做法。
+    </p>
+  </div>
+
+  <!-- ---------- 第 5 步 ---------- -->
+  <h4>第 ⑤ 步：标准化 —— 为什么不做这一步角度补偿会废掉</h4>
+
+  <div class="card">
+    <p style="margin-top:0; font-size:14.5px"><b>源码</b> <code>compensation.py</code> 第 30-37 行（<code>fit</code> 的前半段）</p>
+<pre><span class="k">def</span> <span class="f">fit</span>(self, data: CalibrationData) -&gt; <span class="s">"PolynomialCompensator"</span>:
+    <span class="c"># 中心：400 个理想位姿逐维求平均，得到 5 维向量</span>
+    self.center = np.<span class="f">mean</span>(data.ideal_poses, axis=0)
+    <span class="c"># 尺度：逐维标准差，同样 5 维</span>
+    self.scale  = np.<span class="f">std</span>(data.ideal_poses, axis=0)
+    <span class="c"># 保护：某一维几乎不变时标准差≈0，除法会炸出 inf/nan</span>
+    self.scale[self.scale &lt; 1e-12] = 1.0
+    <span class="c"># 标准化</span>
+    normalized = (data.ideal_poses - self.center) / self.scale
+    ...</pre>
+  </div>
+
+  <p>标准化之后，每一维都变成「均值 0、标准差 1」，这才是能一起比较的坐标。</p>
+
+  <div class="card tight">
+    <p style="margin-top:0; font-size:14.5px"><b>实跑结果</b></p>
+    <table style="margin-bottom:0">
+      <thead><tr><th>量</th><th>值</th></tr></thead>
+      <tbody>
+        <tr><td><code>center</code></td><td class="num" style="white-space:normal">[0.009830, −0.000056, 0.000004, −0.001249, −0.000576]</td></tr>
+        <tr><td><code>scale</code></td><td class="num" style="white-space:normal">[0.001211, 0.001162, 0.000543, 0.015131, 0.015437]</td></tr>
+        <tr><td>量级差距</td><td class="num">最大 / 最小 = <strong>28.5 倍</strong></td></tr>
+        <tr><td>标准化后均值</td><td class="num good">0（逐维）</td></tr>
+        <tr><td>标准化后标准差</td><td class="num good">1（逐维）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="callout red">
+    <div class="t">不做标准化会怎样</div>
+    <p>
+      看 <code>scale</code> 这行：Z 分量是 <code>5.43e-4</code>，角度分量是 <code>1.51e-2</code>，
+      差了 <strong>28 倍</strong>。
+    </p>
+    <p>
+      最小二乘最小化的是<strong>未加权</strong>的平方误差。如果不标准化，
+      量级大的分量（角度）会在目标函数里占据压倒性权重，
+      拟合器会几乎只照顾角度，<strong>Z 方向的补偿就等于被放弃了</strong>。
+    </p>
+    <p>
+      标准化把 5 个分量拉到同一尺度，让最小二乘「公平地」对待每一个分量。
+    </p>
+  </div>
+
+  <div class="card tight">
+    <p style="margin-top:0; font-size:14.5px">
+      <b>顺带理解 <code>center</code> 的作用</b>：它让「标准化后的中心位姿」落在原点
+      <code>(0,0,0,0,0)</code>，于是常数项系数直接就是中心点的平均误差。第 ⑥ 步会验证这一点。
+    </p>
+  </div>
+
+  <!-- ---------- 第 6 步 ---------- -->
+  <h4>第 ⑥ 步：造特征 + 最小二乘 —— 21×5 在这里诞生</h4>
+  <p>
+    这一步分两小步：先把 5 维位姿<strong>展开成 21 维特征</strong>，
+    再用最小二乘求出 <strong>21×5</strong> 的系数。
+  </p>
+
+  <h4 style="margin-top:24px">⑥-A　把 5 维展开成 21 维</h4>
+  <div class="card">
+    <p style="margin-top:0; font-size:14.5px"><b>源码</b> <code>compensation.py</code> 第 13-21 行</p>
+<pre><span class="k">def</span> <span class="f">_quadratic_features</span>(values: NDArray[np.float64]) -&gt; NDArray[np.float64]:
+    <span class="k">if</span> values.ndim != 2 <span class="k">or</span> values.shape[1] != 5:
+        <span class="k">raise</span> <span class="f">ValueError</span>(<span class="s">"Expected an N x 5 feature matrix"</span>)
+    <span class="c"># 第 1 列：常数项，恒为 1</span>
+    columns = [np.<span class="f">ones</span>(values.shape[0])]
+    <span class="c"># 第 2-6 列：5 个一次项 x0 .. x4</span>
+    columns.<span class="f">extend</span>(values[:, index] <span class="k">for</span> index <span class="k">in</span> <span class="f">range</span>(5))
+    <span class="c"># 第 7-21 列：15 个二次项，只取上三角 (row &lt;= column) 避免重复</span>
+    <span class="c"># 例如 x0*x1 与 x1*x0 是同一项，只保留一个</span>
+    <span class="k">for</span> row <span class="k">in</span> <span class="f">range</span>(5):
+        <span class="k">for</span> column <span class="k">in</span> <span class="f">range</span>(row, 5):          <span class="c"># 注意从 row 开始，不是 0</span>
+            columns.<span class="f">append</span>(values[:, row] * values[:, column])
+    <span class="c"># 21 列横向拼成矩阵</span>
+    <span class="k">return</span> np.<span class="f">column_stack</span>(columns)</pre>
+  </div>
+
+  <div class="callout">
+    <div class="t">项数为什么正好是 21</div>
+    <p>
+      1（常数）+ 5（一次）+ 15（二次）= 21。二次项的 15 来自「5 个变量取两个、允许重复」的组合数
+      <code>C(5+2−1, 2) = 15</code>，等价于公式 <code>(n+1)(n+2)/2 = 21</code>（n=5）。
+    </p>
+    <p>
+      代码里内层循环从 <code>row</code> 开始而不是 0，正是为了只取上三角 ——
+      否则会把 <code>x0x1</code> 和 <code>x1x0</code> 算两遍，变成 25 项且列之间完全共线。
+    </p>
+  </div>
+
+  <div class="card tight">
+    <p style="margin-top:0; font-size:14.5px"><b>实跑结果</b>：第 0 个样本展开出的 21 个特征值</p>
+    <table style="margin-bottom:0">
+      <thead><tr><th>类别</th><th>特征名 → 值</th></tr></thead>
+      <tbody>
+        <tr><td>常数</td><td class="num" style="white-space:normal">1 = +1.0000</td></tr>
+        <tr><td>一次项</td><td class="num" style="white-space:normal">x0=−0.7363　x1=+0.8205　x2=+0.0950　x3=−0.1903　x4=+1.5582</td></tr>
+        <tr><td>二次项</td><td class="num" style="white-space:normal">x0²=+0.5421　x0x1=−0.6041　x0x2=−0.0699　x0x3=+0.1401　x0x4=−1.1473<br>x1²=+0.6732　x1x2=+0.0779　x1x3=−0.1561　x1x4=+1.2785　x2²=+0.0090<br>x2x3=−0.0181　x2x4=+0.1480　x3²=+0.0362　x3x4=−0.2965　x4²=+2.4281</td></tr>
+      </tbody>
+    </table>
+    <p class="hint" style="margin:8px 0 0">
+      注意这些值都在 <code>±2.5</code> 左右 —— 因为输入已标准化过。
+      如果跳过第 ⑤ 步，这里会出现 <code>x4≈0.0235</code> 而 <code>x0≈0.0089</code> 这种悬殊的量级。
+    </p>
+  </div>
+
+  <h4 style="margin-top:28px">⑥-B　最小二乘求解 → 21×5</h4>
+  <div class="card">
+    <p style="margin-top:0; font-size:14.5px"><b>源码</b> <code>compensation.py</code> 第 34-37 行</p>
+<pre>    normalized = (data.ideal_poses - self.center) / self.scale
+    features   = <span class="f">_quadratic_features</span>(normalized)      <span class="c"># 400 x 21   -> 记作 A</span>
+    <span class="c"># 解 A @ C = errors，求 C。A 是 400x21（超定），errors 是 400x5</span>
+    <span class="c"># 所以 C 的形状是 21 x 5：21 行对应 21 个基函数，5 列对应 5 个误差分量</span>
+    self.coefficients, *_ = np.linalg.<span class="f">lstsq</span>(features, data.errors, rcond=None)
+    <span class="k">return</span> self</pre>
+  </div>
+
+  <div class="callout">
+    <div class="t">读 <code>lstsq</code> 这一行的正确姿势</div>
+    <p>
+      它解的是矩阵方程 <code>A @ C = errors</code>，其中 <code>A</code> 是 400×21、
+      <code>errors</code> 是 400×5。未知数 21 个、方程 400 个，是<strong>超定</strong>的，
+      没有精确解，所以 <code>lstsq</code> 返回使 <code>‖A@C − errors‖</code> 最小的那个 <code>C</code>。
+    </p>
+    <p>
+      返回的 <code>C</code> 自然是 <strong>21×5</strong>：<strong>21 行 = 21 个基函数的系数，
+      5 列 = 分别拟合 5 个误差分量</strong>。5 列是<strong>各自独立</strong>求解的，
+      这正是「位置和姿态能被一起修好」的原因。
+    </p>
+    <p>
+      代码里写成 <code>self.coefficients, *_ = ...</code>，是因为
+      <code>lstsq</code> 还返回残差平方和、秩、奇异值，这里只要第一个。
+      <code>rcond=None</code> 表示用机器精度作为判定「小奇异值」的阈值。
+    </p>
+  </div>
+
+  <div class="card tight">
+    <p style="margin-top:0; font-size:14.5px"><b>实跑结果</b></p>
+    <table style="margin-bottom:0">
+      <tbody>
+        <tr><th style="width:38%">A 的形状</th><td class="num">400 × 21</td></tr>
+        <tr><th>未知数 / 方程</th><td class="num">21 / 400 → 超定 <strong>19.0 倍</strong></td></tr>
+        <tr><th>解出的 C</th><td class="num"><strong>21 × 5</strong></td></tr>
+        <tr><th><code>lstsq</code> 返回的秩</th><td class="num good">21（满秩，21 个奇异值全部非零）</td></tr>
+        <tr><th>拟合残差（训练集回收）</th><td class="num good">8.3e−9 m</td></tr>
+        <tr><th>原始误差量级（对比）</th><td class="num">1.8e−4 m</td></tr>
+        <tr><th>压缩倍数</th><td class="num good">约 22000 倍</td></tr>
+      </tbody>
+    </table>
+    <p class="hint" style="margin:8px 0 0">
+      秩 = 21 说明 21 个基函数<strong>线性无关</strong>，方程组有唯一最小二乘解，没有冗余列。
+    </p>
+  </div>
+
+  <div class="callout green">
+    <div class="t">一个可以自查的漂亮性质：常数项 = 中心点的平均误差</div>
+    <p>
+      因为第 ⑤ 步让各维均值为 0，「标准化后的中心位姿」正好是 <code>(0,0,0,0,0)</code>，
+      此时所有非常数基函数都为 0，预测值就只剩常数项。所以 <code>C</code> 的第 0 行
+      应该等于 <code>errors</code> 的列均值。实测：
+    </p>
+    <table style="margin-top:8px">
+      <tbody>
+        <tr><td><code>C[0]</code></td><td class="num" style="white-space:normal">[0.000052, −0.000011, −0.000037, 0.000148, −0.000177]</td></tr>
+        <tr><td><code>errors</code> 列均值</td><td class="num" style="white-space:normal">[0.000052, −0.000011, −0.000037, 0.000148, −0.000177]</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px">
+      两者完全一致。<strong>这既验证了标准化做对了，也给了常数项一个物理解释：
+      它是中心位姿处的平均误差</strong>（这里是约 52 μm 的 X 向偏移）。
+    </p>
+  </div>
+
+  <h4 style="margin-top:28px">⑥-C　拿到 C 之后怎么用：<code>predict</code></h4>
+  <div class="card">
+    <p style="margin-top:0; font-size:14.5px"><b>源码</b> <code>compensation.py</code> 第 43-54 行</p>
+<pre><span class="k">def</span> <span class="f">predict</span>(self, poses: ArrayLike) -&gt; NDArray[np.float64]:
+    <span class="k">if</span> <span class="k">not</span> self.fitted:
+        <span class="k">raise</span> <span class="f">RuntimeError</span>(<span class="s">"Compensator has not been fitted"</span>)
+    values = np.<span class="f">asarray</span>(poses, dtype=np.float64)
+    <span class="c"># 兼容两种调用：单个位姿 (5,) 或一批位姿 (N, 5)</span>
+    scalar = values.ndim == 1
+    <span class="k">if</span> scalar:
+        values = values[np.newaxis, :]
+    <span class="k">if</span> values.ndim != 2 <span class="k">or</span> values.shape[1] != 5:
+        <span class="k">raise</span> <span class="f">ValueError</span>(<span class="s">"Pose input must have shape (5,) or (N, 5)"</span>)
+    <span class="c"># 用训练时存下的 center/scale 做同样的标准化，然后走同一套 21 项特征</span>
+    normalized = (values - self.center) / self.scale
+    prediction = <span class="f">_quadratic_features</span>(normalized) @ self.coefficients   <span class="c"># (N,21)@(21,5) -> (N,5)</span>
+    <span class="k">return</span> prediction[0] <span class="k">if</span> scalar <span class="k">else</span> prediction</pre>
+  </div>
+
+  <div class="callout amber">
+    <div class="t">两处必须注意</div>
+    <p>
+      <strong>① <code>center</code>/<code>scale</code> 必须复用训练时的值。</strong>
+      它们被存在实例上（第 27-28 行），预测时不能再从新数据重算 ——
+      否则同一个位姿在训练和推理时会映射到不同的坐标，模型立刻失效。
+    </p>
+    <p>
+      <strong>② 参数名是 <code>poses</code>，没有 q。</strong>
+      这个签名本身就说明了问题：误差模型的输入是<strong>位姿</strong>，不是指令。
+      这也再次印证了前面那个坑 —— 标定阶段根本不需要处理「两个 q」。
+    </p>
+  </div>
+
+  <div class="callout">
+    <div class="t">整条链路的形状变化（记这张表就够了）</div>
+    <table style="margin-top:8px">
+      <thead><tr><th>阶段</th><th>量</th><th>形状</th></tr></thead>
+      <tbody>
+        <tr><td>① 采样</td><td>commands</td><td class="num">400 × 5</td></tr>
+        <tr><td>② 双机求解</td><td>ideal_poses / real_poses</td><td class="num">400 × 5 / 400 × 5</td></tr>
+        <tr><td>④ 相减</td><td>errors</td><td class="num">400 × 5</td></tr>
+        <tr><td>⑤ 标准化</td><td>normalized</td><td class="num">400 × 5</td></tr>
+        <tr><td>⑥-A 展开</td><td>A = features</td><td class="num">400 × <strong>21</strong></td></tr>
+        <tr><td>⑥-B 求解</td><td><strong>C</strong></td><td class="num"><strong>21 × 5</strong></td></tr>
+        <tr><td>⑥-C 预测</td><td>features @ C</td><td class="num">(N,21)@(21,5) → N × 5</td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px">
+      注意 <code>5</code> 这个维度从头到尾都在，变的只是「样本数」和「21 个基函数」这两侧。
+    </p>
+  </div>
+
+  <h3>在线推理：怎么用它</h3>
+<pre><span class="c"># compensation.py · solve_command()</span>
+<span class="c"># ① 迭代反推「理想机应该走到哪」</span>
+p = T
+重复 3 次:  p = T − <span class="f">predict</span>(p)          <span class="c"># predict(p) = features((p−center)/scale) @ C</span>
+corrected = p
+
+<span class="c"># ② 让理想机逆解出能到 corrected 的指令</span>
+<span class="f">inverse_kinematics</span>(ideal_machine, corrected,
+                   position_tolerance=2e-6, angle_tolerance=2e-6)
+
+<span class="c"># ③ 把这条指令交给真机执行，比较结果</span>
+after = real_machine.<span class="f">forward</span>(corrected_command)</pre>
+
+  <div class="callout amber">
+    <div class="t">为什么第 ① 步要迭代 3 次？</div>
+    <p>
+      因为 <code>predict</code> 的自变量是<strong>「理想机应当到达的位置」</strong>，
+      而不是最终目标 T。这就成了不动点问题：想知道该挪多少，得先知道挪到哪。
+    </p>
+    <p>
+      好消息是收敛极快（平方收敛）。实测相邻两轮的修正量变化：
+      第 2 轮 <code>6.7e-8</code>，第 3 轮 <code>6.2e-11</code>，第 4 轮 <code>8.8e-14</code>。
+      所以代码里固定迭代 3 次就足够。
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 5 ================= -->
+<section id="s5">
+  <h2><span class="n">5</span>实测数字（可直接引用）</h2>
+  <p class="hint">以下全部为本机实跑结果，不是估计值。参数：标定 400 样本、seed=42、页面首次加载用的就是这组。</p>
+
+  <h3>补偿效果</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>指标</th><th>补偿前</th><th>补偿后</th><th>改善</th></tr></thead>
+      <tbody>
+        <tr><td>位置 RMSE</td><td class="num bad">64.87 μm</td><td class="num good">0.002 μm</td><td class="num good">99.997%</td></tr>
+        <tr><td>姿态 RMSE</td><td class="num bad">230.6 μrad</td><td class="num good">0.003 μrad</td><td class="num good">99.999%</td></tr>
+      </tbody>
+    </table>
+    <p class="hint" style="margin:8px 0 0">独立验证集 80 点（<code>seed+1</code> 单独采样），全部成功、0 失败。</p>
+  </div>
+
+  <h3>标定数据长什么样</h3>
+  <div class="card">
+    <table>
+      <tbody>
+        <tr><th style="width:42%">采样角度范围</th><td class="num">±2.062°（<code>angle_fraction=0.55</code>）</td></tr>
+        <tr><th>光程 qf 范围</th><td class="num">0.074006 ~ 0.075998 m</td></tr>
+        <tr><th>理想位姿径向偏移</th><td class="num">最大 2.4964 mm（视场半径 2.5 mm）</td></tr>
+        <tr><th>特征矩阵</th><td class="num">400 × 21（<strong>超定 19 倍</strong>）</td></tr>
+        <tr><th>系数矩阵 C</th><td class="num">21 × 5</td></tr>
+        <tr><th>单次 forward 耗时</th><td class="num">400 μs（不含光学包络）/ 548 μs（含）</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>一次补偿的实际修正量</h3>
+  <p>这条最能说明「补偿在干什么」—— 看它把指令改了多少：</p>
+  <div class="card">
+    <table>
+      <thead><tr><th>量</th><th>数值</th></tr></thead>
+      <tbody>
+        <tr><td>理想指令 q</td><td class="num">[0.008, −0.008, 0.001, 0.0005, 0.0748]</td></tr>
+        <tr><td>补偿修正后 q′</td><td class="num">[0.007527, −0.008585, 0.001494, 0.000643, 0.074761]</td></tr>
+        <tr><td>指令改变量</td><td class="num">[−473, −585, +494, +143] μrad ，光程 −39 μm</td></tr>
+        <tr><td>补偿前位置误差</td><td class="num bad">64.74 μm</td></tr>
+        <tr><td>补偿后位置误差</td><td class="num good">0.0018 μm</td></tr>
+        <tr><td>补偿后姿态误差</td><td class="num good">0.0017 μrad</td></tr>
+      </tbody>
+    </table>
+    <p class="hint" style="margin:8px 0 0">注意修正量在<strong>几百 μrad</strong> 量级 —— 和误差源（零偏 61 μrad、轴倾斜 54 μrad）同量级，数量级自洽。</p>
+  </div>
+
+  <h3>标定样本翻倍有用吗？</h3>
+  <div class="card">
+    <table>
+      <thead><tr><th>标定规模</th><th>位置 RMSE（补偿后）</th><th>姿态 RMSE（补偿后）</th></tr></thead>
+      <tbody>
+        <tr><td>400 样本</td><td class="num">0.011106 μm</td><td class="num">0.002475 μrad</td></tr>
+        <tr><td>800 样本</td><td class="num">0.011107 μm</td><td class="num">0.002650 μrad</td></tr>
+      </tbody>
+    </table>
+    <p class="hint" style="margin:8px 0 0">
+      两者系数矩阵相对差仅 <strong>0.06%</strong> —— 400 样本已接近饱和，加倍不会带来可见改善。
+      这也是页面默认只用 400 的原因。
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 6 ================= -->
+<section id="s6">
+  <h2><span class="n">6</span>动手试一下：工作域到底有多小</h2>
+  <p class="hint">
+    这是全项目<strong>最容易误解</strong>的一点，所以做成了可拖动的。拖动滑块看光束什么时候出界。
+  </p>
+
+  <div class="lab">
+    <div class="ctl">
+      <label style="font-size:14.5px; font-weight:600">转角 q1 = −q2 =</label>
+      <input type="range" id="ang" min="0" max="200" value="20">
+      <span class="val" id="angv">0.20°</span>
+    </div>
+    <svg viewBox="0 0 640 300" id="svg">
+      <!-- 视场圆 -->
+      <circle cx="320" cy="132" r="104" fill="#eaf7f1" stroke="#1f8a5f" stroke-width="1.5" stroke-dasharray="5 4"/>
+      <text x="320" y="20" text-anchor="middle" font-size="12.5" fill="#1f8a5f" font-weight="600">标记视场半径 2.5 mm —— 这才是有用的边界</text>
+      <line x1="320" y1="132" x2="424" y2="132" stroke="#1f8a5f" stroke-width="1"/>
+      <text x="372" y="126" text-anchor="middle" font-size="11" fill="#1f8a5f">2.5 mm</text>
+      <!-- 十字 -->
+      <line x1="320" y1="40" x2="320" y2="224" stroke="#e3e1db" stroke-width="1"/>
+      <line x1="228" y1="132" x2="412" y2="132" stroke="#e3e1db" stroke-width="1"/>
+      <!-- 出界提示环 -->
+      <circle id="outring" cx="320" cy="132" r="104" fill="none" stroke="#c8442f" stroke-width="2" opacity="0"/>
+      <!-- 落点 -->
+      <line id="ray" x1="320" y1="132" x2="320" y2="132" stroke="#2f6fd0" stroke-width="2"/>
+      <circle id="dot" cx="320" cy="132" r="8" fill="#2f6fd0"/>
+      <!-- 底部比例条：机械行程 vs 可用 -->
+      <text x="320" y="252" text-anchor="middle" font-size="12" fill="#5b6371">同样按「单轴转角」比较（条形按比例）：</text>
+      <rect x="120" y="262" width="440" height="12" rx="6" fill="#e3e1db"/>
+      <rect x="120" y="262" width="59" height="12" rx="6" fill="#1f8a5f"/>
+      <text x="120" y="290" font-size="11.5" fill="#1f8a5f" font-weight="600">可用 ≈ 0.5°</text>
+      <text x="560" y="290" text-anchor="end" font-size="11.5" fill="#c8442f" font-weight="600">机械行程 3.75° （是前者的 7 倍）</text>
+    </svg>
+    <div class="verdict ok" id="vd">✓ 在工作域内 —— 补偿对比可正常给出结果</div>
+  </div>
+
+  <div class="card">
+    <h4 style="margin-top:0">为什么范围这么小</h4>
+    <p>
+      转角会让焦点在平面上移动。单轴速率约 <strong>1.309 mm/°</strong>：
+      由 75 mm 物镜焦距决定（<code>0.075 × π/180</code>）。
+      视场半径只有 2.5 mm，所以单轴转到 <strong>0.5° 左右</strong>就到边界了。
+    </p>
+    <p>
+      而 <code>angle_limit</code> 是 3.75°，比它大 7 倍。<strong>机械能转，不代表光学上可用。</strong>
+      这就是为什么 <code>is_pose_within_workspace()</code> 要单独检查径向偏移、Z 向范围、入射角三个条件。
+    </p>
+  </div>
+
+  <div class="callout red">
+    <div class="t">连带后果：标定采样的存活率只有 5.7%</div>
+    <p>
+      标定要随机撒指令，但撒出来的大部分都落在工作域外。实测 4000 条候选：
+    </p>
+    <table style="margin-top:8px">
+      <thead><tr><th>结果</th><th>数量</th><th>占比</th></tr></thead>
+      <tbody>
+        <tr><td>几何失败（打不到镜面/孔径外）</td><td class="num">217</td><td class="num">5.4%</td></tr>
+        <tr><td>超出标记视场工作域</td><td class="num">3555</td><td class="num">88.9%</td></tr>
+        <tr><td><strong>有效</strong></td><td class="num"><strong>228</strong></td><td class="num good"><strong>5.7%</strong></td></tr>
+      </tbody>
+    </table>
+    <p style="margin-top:8px">
+      约 <strong>17.5 条候选才留下 1 条</strong>。这直接解释了源码里
+      <code>maximum_attempts = sample_count × 30</code> 这个 30 倍余量的来历 ——
+      采样域越大，存活率越低，30 倍都可能不够（实测 <code>angle_fraction=0.9</code> + 1000 样本会直接抛错）。
+    </p>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 7 ================= -->
+<section id="s7">
+  <h2><span class="n">7</span>五个最容易搞错的点</h2>
+  <p class="hint">这些是读代码时最可能形成的错误印象，先打预防针。</p>
+
+  <div class="myth">
+    <div class="wrong"><div class="lbl">✗ 以为</div><p>补偿矩阵是个 5×5 的几何矩阵</p></div>
+    <div class="right"><div class="lbl">✓ 实际</div><p>是 <strong>21×5 的多项式系数表</strong>，把位姿映射成误差，跟几何变换无关</p></div>
+  </div>
+
+  <div class="myth">
+    <div class="wrong"><div class="lbl">✗ 以为</div><p>理想机和真机是两套不同的算法</p></div>
+    <div class="right"><div class="lbl">✓ 实际</div><p><strong>同一份代码</strong>，唯一区别是 <code>errors</code> 字段填没填。误差只注入在镜心/转轴/转角三处</p></div>
+  </div>
+
+  <div class="myth">
+    <div class="wrong"><div class="lbl">✗ 以为</div><p>能转 ±3.75°，所以工作范围就是 ±3.75°</p></div>
+    <div class="right"><div class="lbl">✓ 实际</div><p>受标记视场 2.5 mm 限制，<strong>单轴实际只有 0.6°~1.1°</strong>，小一个量级</p></div>
+  </div>
+
+  <div class="myth">
+    <div class="wrong"><div class="lbl">✗ 以为</div><p>补偿是「给指令加个固定偏移」</p></div>
+    <div class="right"><div class="lbl">✓ 实际</div><p>偏移<strong>随目标位置变化</strong>（二次函数），且要经过不动点迭代求解</p></div>
+  </div>
+
+  <div class="myth">
+    <div class="wrong"><div class="lbl">✗ 以为</div><p>残差 0.002 μm 说明设备精度是 0.002 μm</p></div>
+    <div class="right"><div class="lbl">✓ 实际</div><p>这是<strong>纯确定性仿真</strong>的结果。真实设备还有噪声、热漂、非线性，不能用它当精度指标</p></div>
+  </div>
+</section>
+
+<hr>
+
+<!-- ================= 8 ================= -->
+<section id="s8">
+  <h2><span class="n">8</span>可能被追问的问题</h2>
+  <p class="hint">点开看答案。建议先自己想一遍再点。</p>
+
+  <details><summary>为什么用多项式，不用查表或神经网络？</summary>
+    <div class="a">
+      <p><strong>查表</strong>需要存储海量格点，且格点之间要插值；<strong>神经网络</strong>参数多、需要更多样本、还难以解释。</p>
+      <p>多项式的好处：① 对<strong>系数</strong>是线性的，最小二乘一步求解，不需要迭代和初值；
+      ② 只有 21 个参数，配 400 样本超定 19 倍，不易过拟合；
+      ③ 物理上，小的几何误差对位姿的影响本来就近似低阶光滑函数，二阶足够。</p>
+      <p><strong>实测佐证</strong>：400 样本和 800 样本得到的系数矩阵只差 0.06%，说明模型容量已经够用。</p>
+    </div>
+  </details>
+
+  <details><summary>为什么是二阶，不是一阶或三阶？</summary>
+    <div class="a">
+      <p>一阶（6 项）不足以描述——误差里含 <code>q²</code> 性质的项（镜面旋转对落点的影响本身带三角函数非线性）。
+      三阶在 5 维下要 56 项，参数变多但对残差的改善已经进入噪声量级。</p>
+      <p>更直接的证据：加上二阶项后残差从 <strong>几十 μm 降到 0.002 μm</strong>，
+      跨越了 4 个数量级，说明二阶基函数已经抓住了误差的主要结构。</p>
+    </div>
+  </details>
+
+  <details><summary>为什么必须先标准化再拟合？</summary>
+    <div class="a">
+      <p>因为 5 个位姿分量量级差得远。实测 <code>scale = [1.2e-3, 1.2e-3, 5.4e-4, 1.5e-2, 1.5e-2]</code>，
+      位置分量在毫米级、角度在毫弧度级，相差约 10 倍以上。</p>
+      <p>最小二乘最小化的是<strong>未加权</strong>的平方误差，量级大的分量会主导拟合，
+      角度方向的补偿精度就会很差。标准化让各分量处于同一尺度。</p>
+      <p>注意 <code>scale</code> 里还做了保护：小于 <code>1e-12</code> 的置为 1，避免除零。</p>
+    </div>
+  </details>
+
+  <details><summary>怎么保证补偿不会「假装有效」？</summary>
+    <div class="a">
+      <p>四道防线：</p>
+      <p>① <strong>训练/验证分离</strong>：验证用 <code>seed+1</code> 独立采样，与训练样本不重叠；</p>
+      <p>② <strong>工作域门禁</strong>：<code>is_pose_within_workspace()</code> 不通过就直接停用补偿，
+      页面会显示「当前目标超出标定工作域」，而不是给出不可信的改善；</p>
+      <p>③ <strong>逆解失败不显示</strong>：<code>solution.success == False</code> 时 <code>after</code> 保持 <code>None</code>；</p>
+      <p>④ <strong>报告失败数</strong>：验证结果里带 <code>failed_validation_samples</code>，不藏失败的样本。
+      实测 80 点全部成功、0 失败。</p>
+    </div>
+  </details>
+
+  <details><summary>forward() 是整个项目的真值来源，它可靠吗？</summary>
+    <div class="a">
+      <p>它可靠的部分：纯几何计算（旋转、求交、反射），每个函数都有单元测试把守，
+      例如 45° 反射的精确值和旋转保长性。</p>
+      <p><strong>不可靠的部分在物理参数</strong>，而不在算法。README 里明确写了研究边界：
+      镜面中心、初始法向、旋转轴<strong>不在规格表里</strong>，默认值是为了让雅可比满秩而设的
+      紧凑虚拟光路，<strong>不代表厂商内部真实结构</strong>。</p>
+      <p>所以接真机时必须替换这些参数，并用实测标定数据重新训练 —— 这也是为什么代码把
+      <code>mirrors</code> 和 <code>errors</code> 都设计成可传入的数据类字段。</p>
+    </div>
+  </details>
+
+  <details><summary>补偿前后差 4 个数量级，这个结果可信吗？是不是过拟合了？</summary>
+    <div class="a">
+      <p>不是过拟合，原因是<strong>问题本身是确定性的且光滑</strong>：</p>
+      <p>① 真机误差是固定的一组常数（<code>create_seeded_real_machine(seed=2026)</code>），
+      不是每次随机；② 没有测量噪声；③ 误差随位姿平滑变化。</p>
+      <p>这种条件下，21 个参数的二阶多项式在 400 个样本上拟合，残差落到 0.002 μm 是合理的。</p>
+      <p><strong>但这恰恰是它的局限</strong>：真实设备有噪声、热漂移、迟滞，残差不可能这么低。
+      README 里专门写了「模型仅包含确定性误差，仿真残差不能当作设备实际精度」。</p>
+    </div>
+  </details>
+
+  <details><summary>为什么补偿矩阵能修好「姿态」误差，而不只是位置？</summary>
+    <div class="a">
+      <p>因为拟合时<strong>误差向量的 5 个分量是一起最小二乘的</strong>：
+      <code>errors</code> 是 400×5 矩阵，<code>lstsq</code> 同时解 5 列系数。
+      所以 <code>C</code> 的每一列对应一个误差分量，位置和姿态一起被建模。</p>
+      <p>再加上 5 个控制量本身就有 5 个自由度（雅可比满秩），
+      所以位置和姿态可以被<strong>独立地</strong>修正到目标值 —— 这也是「满秩」为什么是个硬约束。</p>
+    </div>
+  </details>
+
+  <details><summary>改了镜面布局或规格参数，要动哪些地方？</summary>
+    <div class="a">
+      <p>① <code>specifications.py</code> 的 <code>STANDARD_515_NM</code> —— 改光学规格；</p>
+      <p>② <code>model.py</code> 的 <code>create_default_machine()</code> —— 改镜面中心、法向、旋转轴；</p>
+      <p>③ 改完<strong>立刻跑测试</strong>：<code>.\.venv\Scripts\python -m pytest</code>。
+      重点看 <code>test_jacobian_is_full_rank</code> 和
+      <code>test_default_profile_matches_515_nm_standard_workspace</code> ——
+      布局改动最容易破坏满秩和工作域，这两个测试会立刻报出来。</p>
+      <p>④ 参数变了以后补偿矩阵必须<strong>重新标定</strong>，旧的不能复用。</p>
+    </div>
+  </details>
+
+  <details><summary>为什么 api.py 里 reload=False？改了代码没生效？</summary>
+    <div class="a">
+      <p><code>main()</code> 里 <code>uvicorn.run(..., reload=False)</code> 是硬编码的，
+      意味着<strong>改了 Python 代码必须重启服务</strong>才生效。</p>
+      <p>但改 <code>static/</code> 下的前端文件（<code>index.html</code>、<code>app.js</code>）
+      只需刷新浏览器。</p>
+      <p>另外补偿模型是<strong>进程内全局状态</strong>，训练结果不会持久化 ——
+      重启服务后需要重新训练（页面会自动做，约 10~30 秒）。</p>
+    </div>
+  </details>
+</section>
+
+<footer>
+  <p>
+    本文所有数字均为本机实跑结果，可用 <code>.\.venv\Scripts\python -m pytest</code> 复现测试，
+    或用页面上的滑块直接观察。
+  </p>
+  <p>完整技术文档见同目录 <code>README.md</code>（含逐行数据流与公式推导）。</p>
+</footer>
+
+</main>
+</div>
+
+<script>
+// ---------- 侧栏高亮 ----------
+(function(){
+  var links = Array.prototype.slice.call(document.querySelectorAll('nav a'));
+  var secs  = links.map(function(a){ return document.querySelector(a.getAttribute('href')); });
+  function upd(){
+    var y = window.scrollY + 120, idx = 0;
+    for (var i = 0; i < secs.length; i++){
+      if (secs[i] && secs[i].offsetTop <= y) idx = i;
+    }
+    links.forEach(function(a,i){ a.classList.toggle('on', i === idx); });
+  }
+  window.addEventListener('scroll', upd, {passive:true});
+  window.addEventListener('resize', upd);
+  upd();
+})();
+
+// ---------- 工作域交互 ----------
+(function(){
+  var MM_PER_DEG = 1.309;      // 单轴速率（实测）：75mm 焦距 x pi/180
+  var FIELD_R    = 2.5;        // 视场半径 mm
+  var PX_PER_MM  = 104 / 2.5;  // 视场圆半径 104px 对应 2.5mm
+  var CX = 320, CY = 132;
+  var MAXPX = 118;             // 落点最大显示半径，超出则压缩并提示
+
+  var ang   = document.getElementById('ang');
+  var angv  = document.getElementById('angv');
+  var dot   = document.getElementById('dot');
+  var ray   = document.getElementById('ray');
+  var vd    = document.getElementById('vd');
+  var ring  = document.getElementById('outring');
+
+  function draw(){
+    var deg = ang.value / 100;                    // 滑块 0 .. 2.00 度
+    angv.textContent = deg.toFixed(2) + '°';
+
+    // q1=+a, q2=-a：两轴贡献同向叠加，径向偏移约为单轴的 2 倍
+    var r_mm = 2 * deg * MM_PER_DEG;
+    var r_px = r_mm * PX_PER_MM;
+    var clipped = r_px > MAXPX;
+    var shown = clipped ? MAXPX : r_px;           // 出界后原地压缩，避免跑出画布
+
+    var x = CX + shown * Math.cos(Math.PI / 4);
+    var y = CY - shown * Math.sin(Math.PI / 4);
+
+    dot.setAttribute('cx', x);
+    dot.setAttribute('cy', y);
+    ray.setAttribute('x2', x);
+    ray.setAttribute('y2', y);
+
+    var inField = r_mm <= FIELD_R;
+    var col = inField ? '#2f6fd0' : '#c8442f';
+    dot.setAttribute('fill', col);
+    ray.setAttribute('stroke', col);
+    ring.setAttribute('opacity', inField ? '0' : '.9');
+
+    vd.className = 'verdict ' + (inField ? 'ok' : 'no');
+    vd.textContent = inField
+      ? '✓ 径向偏移 ' + r_mm.toFixed(3) + ' mm — 在工作域内，补偿对比可正常给出结果'
+      : '✗ 径向偏移 ' + r_mm.toFixed(3) + ' mm — 超出视场半径 2.5 mm，页面会停用补偿对比'
+        + (clipped ? '（落点已压缩显示）' : '');
+  }
+  ang.addEventListener('input', draw);
+  draw();
+})();
+</script>
+</body>
+</html>

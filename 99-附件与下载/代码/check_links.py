@@ -17,7 +17,7 @@ if hasattr(sys.stdout, "reconfigure"):
 VAULT = sys.argv[1] if len(sys.argv) > 1 else os.path.dirname(os.path.abspath(__file__))
 
 # 排除的目录（第三方代码 / 原始缓存 / 调研报告）
-EXCLUDE = ("_调研原始缓存", "深度调研报告", os.path.join("99-附件与下载", "代码"))
+EXCLUDE = ("_调研原始缓存", os.path.join("99-附件与下载", "代码"))
 
 LINK_RE = re.compile(r"\[\[([^\]]+)\]\]")
 

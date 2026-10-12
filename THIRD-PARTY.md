@@ -34,7 +34,7 @@ BSD-3-Clause 允许再分发，**前提是保留版权声明与许可证全文**
 
 > 顺带一提：`georgemihaila/xy2-100` 与 OPAL 在**校验位覆盖范围**上都少算了一位
 > （只算 16 位数据位、漏掉控制字，导致校验值相反）。
-> 详见 [[01-协议篇/02-帧结构详解]]——抄代码前先看这一节。
+> 详见 [[01-协议篇/XY2-100与增强版/02-帧结构详解]]——抄代码前先看这一节。
 
 另一个参考实现是 **sigrok** 的 XY2-100 协议解码器（`sigrok-xy2-100-decoder/`）：
 它是 sigrok 项目的组成部分，沿用 sigrok 的 **GPL-3.0+**；原快照未附带许可证文件，
@@ -42,10 +42,10 @@ BSD-3-Clause 允许再分发，**前提是保留版权声明与许可证全文**
 
 ---
 
-## 三、未入库：厂商与标准文档（29 份，约 30 MB）
+## 三、未入库：厂商与标准文档（32 份，约 47 MB）
 
 这些都是**版权文档**，请从官方渠道获取。下表给出用途与获取途径，
-对应笔记见 [[04-资源库/01-官方文档索引]]。
+对应笔记见 [[07-资源库/01-官方文档索引]]。
 
 ### 标准原文（最重要）
 
@@ -66,16 +66,39 @@ BSD-3-Clause 允许再分发，**前提是保留版权声明与许可证全文**
 | 振镜数据手册 | RAYLASE、SinoGalvo/Sintec、Cambridge Technology、SCANLAB 系列 |
 | RS-422 器件 | TI AM26LS31、UA9638、AM26LV31、MAX3096 |
 
+### 五轴补偿篇引用的资料（2026-09 新增，3 份 + 3 张截图）
+
+原 `five-axis-galvo-5d-compensation` 仓库随源码收录了这几份**厂商版权文档**；
+并入本库时按本库既有约定**移出仓库**（`.gitignore` 已忽略），
+放在 `99-附件与下载/pdf/`，笔记里的相对链接指向那里。
+
+| 文档 | 本地文件 | 许可证 / 版权 | 获取途径 |
+|---|---|---|---|
+| **SCANLAB precSYS 英文手册（02/2026）** | `99-附件与下载/pdf/SCANLAB-precSYS-EN.pdf` | © SCANLAB GmbH，版权文档 | <https://www.scanlab.de/sites/default/files/2026-03/SCANLAB-precSYS-EN.pdf> |
+| **Cambridge Technology（Novanta）Calibration Wizard 用户手册** | `99-附件与下载/pdf/CalWizard_Manual.pdf` | © Novanta Photonics，版权文档 | <https://novantaphotonics.com/wp-content/uploads/2022/04/CalWizard_Manual.pdf> |
+| **DataRay BeamMap2 白皮书** | `99-附件与下载/pdf/dataray-beammap2-whitepaper.pdf` | © DataRay Inc.，版权文档 | <https://assets.dataray.com/pdf/dataray-beammap2-whitepaper.pdf> |
+| precSYS 手册截图（p2 / p3 / p8） | `99-附件与下载/pdf/precSYS_手册截图/` | 同上（手册页面的截图，**非原创**） | 自上述手册截取 |
+
+> ⚠️ 这几份资料**不是**本库原创，也**不在仓库里**。
+> 它们只用于核对笔记里的结构尺寸、校准流程与测量判据。
+> 对应笔记：[[05-五轴与补偿篇/系统架构/08-precSYS五轴装配与校核边界]]、
+> [[05-五轴与补偿篇/标定与误差补偿/09-标定测量与实机落地路线]]；
+> 原项目自带的资料索引见 `05-五轴与补偿篇/代码/docs/references.md`。
+>
+> 另有一条**已登记但未核实**的来源：用户提供的
+> [五轴校准视频](https://www.youtube.com/watch?v=xrGgiiWXKjY) ——
+> 检索未收录该视频 ID，标题/发布方/时长/内容均未确认，**不据此下结论**。
+
 ### 论文与书籍
 
 SPIE / EUSPEN / Springer 论文若干，以及 *Handbook of Optical and Laser Scanning*
-(2nd Edition, Marshall & Stutz) 的预览章节。清单见 [[04-资源库/04-论文书籍]]。
+(2nd Edition, Marshall & Stutz) 的预览章节。清单见 [[07-资源库/04-论文书籍]]。
 
 ---
 
 ## 三·补、光学篇引用的公开来源（在线，无需下载）
 
-光学篇（`05-光学篇/`）的结论来自厂商官网、数据手册与论文。这些**全部可公开访问**，
+光学篇（`04-光学篇/`）的结论来自厂商官网、数据手册与论文。这些**全部可公开访问**，
 下表按主题索引，方便你回到原文核对。**本仓库不转载其内容，只给链接。**
 
 ### F-θ 场镜
@@ -148,6 +171,14 @@ SPIE / EUSPEN / Springer 论文若干，以及 *Handbook of Optical and Laser Sc
 > 厂商**未公开**的指标（场镜平场性 µm 级数值、镜片动平衡工艺、场镜装反的后果等）
 > 在笔记中一律写明"未找到公开来源"，**没有编造填充**。
 
+### 五轴补偿与五轴测量（2026-09 新增）
+
+| 来源 | 用来核对什么 |
+|---|---|
+| [SCANLAB precSYS 产品页](https://www.scanlab.de/en/products/advanced-scanning-solutions/precsys-micromachining-system) | 「五个振镜轴」`(x, y, z, a, b)`、纯振镜 5 轴微加工 |
+| [SCANLAB 校准产品页](https://www.scanlab.de/en/products/calibration) | 厂商标定服务与修正表口径 |
+| [SCANLAB varioSCAN II](https://www.scanlab.de/en/products/z-axes-3d-add-ons/varioscan-ii) | 独立 Z 调焦模块的架构选型依据（**不披露镜组处方**） |
+
 ---
 
 ## 四、未入库：网页抓取缓存（183 MB / 761 文件）
@@ -165,7 +196,13 @@ SPIE / EUSPEN / Springer 论文若干，以及 *Handbook of Optical and Laser Sc
 ## 五、本仓库原创部分的许可证
 
 - **笔记与文档**（`*.md`）：CC BY 4.0，见 [LICENSE](LICENSE)
-- **自写代码**（`02-硬件实现篇/代码/`、`05-光学篇/代码/` 下的 `.v` / `.py`）：MIT
+- **自写代码**（`02-硬件实现篇/代码/`、`04-光学篇/代码/`、`05-五轴与补偿篇/代码/`
+  下的 `.v` / `.py` / `.js`）：MIT
+
+> `05-五轴与补偿篇/代码/` 是从原 `five-axis-galvo-5d-compensation` 仓库并入的
+> **本项目原创代码**（同一作者），并入时**已移除其厂商 PDF 与 git 历史**，
+> 因此其许可与本库一致：代码 MIT、笔记 CC BY 4.0。
+> 原项目的第三方代码引用情况与本节相同 —— 它本来就没有收录任何第三方源码。
 
 引用本库内容时请注明来源仓库；笔记中标 💡 的是工程经验解释，
 **不同厂商可能不一致，以你手上那台设备的手册为准**。

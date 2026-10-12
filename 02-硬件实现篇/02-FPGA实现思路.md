@@ -394,7 +394,7 @@ xy2_100_tx u_xy (.clk(clk), .rst_n(rst_n),
 > [!quote] 出处
 > | 内容 | 出处 |
 > |---|---|
-> | 帧格式、SYNC 19 位、偶校验范围 | 见 [[01-协议篇/02-帧结构详解]] 的"原厂依据" |
+> | 帧格式、SYNC 19 位、偶校验范围 | 见 [[01-协议篇/XY2-100与增强版/02-帧结构详解]] 的"原厂依据" |
 > | 2 MHz / 500 ns / tDS 50 ns / tDH 100 ns | `Documents_TD_XY2-100_R0703.pdf` p.2 |
 > | 偶校验覆盖 19 个前导位 | sigrok `xy2-100/pd.py` + 两个独立解码器交叉验证 |
 > | 8 MHz → 2 MHz、side-set 差分技巧 | `XY2Galvo-rp2040/src/XY2-100.pio` |

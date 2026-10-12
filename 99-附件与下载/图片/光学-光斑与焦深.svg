@@ -105,5 +105,5 @@
   <text x="862" y="634" class="cap">+ 热漂移 + 场曲残余</text>
 
   <text x="24" y="678" class="ts">依据：RP Photonics（瑞利长度 / DOF）、Thorlabs F-Theta 教程。光束与焦斑尺寸为示意，非等比。</text>
-  <text x="24" y="694" class="ts">光斑系数 1.83 的来历与两种口径之别，见 05-光学篇/13-光斑尺寸与焦深计算。</text>
+  <text x="24" y="694" class="ts">光斑系数 1.83 的来历与两种口径之别，见 04-光学篇/13-光斑尺寸与焦深计算。</text>
 </svg>
